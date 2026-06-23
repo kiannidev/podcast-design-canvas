@@ -35,6 +35,18 @@ Flag issues that affect the finished episode:
 
 Warnings should describe the visible or audible problem, not internal timing data.
 
+## Preview Contexts
+
+Creators should judge a sync repair on episode moments where drift is easiest to notice:
+
+- the episode opening before the first speaker settles
+- the first guest response after the host finishes
+- a midpoint exchange with back-and-forth between speakers
+- the final sign-off where one track ends early
+- a stretch where captions and video no longer match
+
+Each preview should play the real moment with the proposed repair applied, so the creator confirms the fix on honest conversation beats instead of a raw timing offset.
+
 ## Review States
 
 The product should use sync status to drive repair and export readiness:
