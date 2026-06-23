@@ -122,6 +122,24 @@ Flag only framing issues that affect the exported episode:
 
 Each warning should link back to the moment and preview surface where the creator can fix it.
 
+## Speaker Sync Warnings
+
+When separate speaker tracks would affect timing in the exported episode, readiness should surface sync issues as part of track alignment review rather than as a separate timeline editor.
+
+| Warning type | Source spec | Relevant section |
+| --- | --- | --- |
+| timing and alignment issues | `docs/speaker-sync-repair.md` | Detected Issues, Repair Actions |
+| ingest handoff | `docs/episode-ingest-readiness.md` | Readiness Checks, Issue Resolution Mapping |
+| checklist blocking | `docs/publish-checklist.md` | Checklist Item Mapping, Review Approvals |
+
+Flag only sync issues that affect the exported episode:
+
+- speaker video and audio visibly out of sync
+- speaker track ends early leaving a visible gap
+- duplicate audio appears from two speaker tracks
+
+Each warning should link back to sync repair or the speaker bucket where the creator can align, replace, or mark a track audio-only. Raw timecode data should not appear in readiness.
+
 ## Audio Cleanup Warnings
 
 When speech clarity, loudness balance, or conversation cleanup would affect the exported episode, readiness should surface audio issues as part of the existing quality pass rather than as a separate waveform editor.
