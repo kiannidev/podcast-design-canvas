@@ -79,12 +79,16 @@ Avoid exposing raw edit timing, per-cut duration handles, or frame-level rhythm 
 Pacing status should describe what a pacing choice does to the episode in plain creator-facing terms:
 
 - **previewing** — show the pacing feel against the sampled moments and do not change the episode until the creator applies it
+- **fits the show** — the pacing feel matches the format across calm and energetic samples
+- **too aggressive** — visual rhythm or pause trimming would feel rushed for this episode
+- **too calm** — title moments, b-roll, or frame changes feel underpowered for the content
+- **ready to apply** — the creator checked multiple moments and can commit pacing to the episode
 - **applied** — set intensity across the episode; each concrete change appears on the editing surface that owns it, already attached to the right speakers and moments
 - **moment held** — keep a creator-pinned moment at its current pacing even when the surrounding episode feel changes
 - **needs element review** — when a pacing change pushes titles, b-roll, captions, framing, pauses, or chapters past what the creator has approved, take the creator to that editing or review surface rather than resolving it here
 - **saved to template** — store the pacing feel for future episodes, which re-check it against new speakers, length, and chapter timing before treating it as ready
 
-Each state should describe what happens to the episode preview and which editing or review surface the creator lands on, not only the label on the pacing choice. Pacing-level issues that would affect the chosen export destination should appear in the export readiness review alongside the relevant element, not as a separate pacing queue.
+Each state should describe what changes in preview and which editing or review surface the creator lands on, such as "Punchy commentary adds title moments too often in the teaching segment." Pacing-level issues that would affect the chosen export destination should appear in the export readiness review alongside the relevant element, not as a separate pacing queue.
 
 ## Maintainer Acceptance Notes
 
