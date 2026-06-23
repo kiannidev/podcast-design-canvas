@@ -142,6 +142,27 @@ Flag only visual issues that affect the exported episode:
 
 Each warning should link back to the moment where the creator can approve, replace, or remove the visual. Unused suggestions that are not in the export should not affect readiness.
 
+## Title Card Warnings
+
+When title cards would affect the exported episode, readiness should surface card gaps as part of contextual structure review rather than as a separate motion-graphics queue.
+
+| Warning type | Source spec | Relevant section |
+| --- | --- | --- |
+| placement and overlap | `docs/contextual-title-cards.md` | Creator Controls, Review States |
+| topic and guest context | `docs/social-context-intake.md` | Context Uses, Accepted Inputs |
+| segment labels | `docs/show-segment-system.md` | Segment Types, Segment Behavior |
+| checklist blocking | `docs/publish-checklist.md` | Review Approvals |
+
+Flag only title card issues that affect the exported episode:
+
+- suggested title card still needs review
+- card text overlaps captions or hides the active speaker
+- segment or guest name conflicts with metadata
+- card duration covers important speech
+- template title card style no longer fits this episode
+
+Each warning should link back to the moment where the creator can edit, shorten, or remove the title card. Dismissed suggestions not in the export should not affect readiness.
+
 ## Thumbnail Warnings
 
 When the chosen destination requires a thumbnail or cover frame, readiness should treat thumbnail gaps as part of metadata and package review rather than as a separate design tool.
