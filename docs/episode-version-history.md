@@ -83,6 +83,18 @@ Restoring a version should explain what will change:
 
 The product should protect final exports and client-approved states from accidental overwrites.
 
+## Review States
+
+Use simple creator-facing states:
+
+- browsing — the creator is scanning meaningful checkpoints without changing the live edit
+- comparing — two versions preview side by side with creative differences highlighted
+- restore preview — the creator is seeing what would change before confirming a restore
+- restore confirmed — an earlier checkpoint became the live edit with the effect explained
+- protected checkpoint — a final export or client-approved version stays safe from overwrite
+
+Each state should describe the creative effect, such as "Restore would revert the caption style from the last template change."
+
 ## Maintainer Acceptance Notes
 
 Accept work that makes meaningful episode decisions recoverable and understandable. Close work that shows raw autosave logs, treats exports as editable versions, or makes template changes ambiguous.
