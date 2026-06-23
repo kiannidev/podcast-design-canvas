@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Audio Cleanup Controls Prototype</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #16211f;
+        --muted: #5e6b67;
+        --line: #d9e0dd;
+        --panel: #f7faf8;
+        --accent: #136f63;
+        --warn: #a15c00;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        color: var(--ink);
+        background: #ffffff;
+      }
+
+      main {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 32px 20px 48px;
+      }
+
+      h1, h2, p { margin-top: 0; }
+
+      h1 {
+        font-size: 32px;
+        line-height: 1.1;
+        margin-bottom: 8px;
+      }
+
+      .lede {
+        color: var(--muted);
+        max-width: 720px;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 320px;
+        gap: 24px;
+        margin-top: 28px;
+      }
+
+      .panel {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel);
+        padding: 18px;
+      }
+
+      .controls {
+        display: grid;
+        gap: 10px;
+        margin-bottom: 18px;
+      }
+
+      .control {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 12px;
+        align-items: center;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #ffffff;
+        padding: 12px;
+      }
+
+      .control strong { display: block; margin-bottom: 3px; }
+      .control span { color: var(--muted); font-size: 13px; }
+
+      .speakers {
+        display: grid;
+        gap: 10px;
+      }
+
+      .speaker {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #ffffff;
+        padding: 12px;
+        display: grid;
+        gap: 10px;
+      }
+
+      label {
+        display: grid;
+        gap: 6px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      select {
+        min-height: 38px;
+        border: 1px solid #bfcbc7;
+        border-radius: 6px;
+        background: #ffffff;
+        color: var(--ink);
+        font: inherit;
+        padding: 8px 10px;
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        min-height: 28px;
+        border-radius: 999px;
+        padding: 0 11px;
+        font-weight: 700;
+        font-size: 13px;
+      }
+
+      .badge.suggested { color: #7a4400; background: #fff1d6; }
+      .badge.applied { color: #075246; background: #dff5ef; }
+      .badge.original { color: #3f4d66; background: #e8edf5; }
+      .badge.clean { color: #075246; background: #dff5ef; }
+
+      .moments {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 16px;
+      }
+
+      button {
+        min-height: 38px;
+        border: 1px solid #b9c8c3;
+        border-radius: 6px;
+        background: #ffffff;
+        color: var(--ink);
+        font: inherit;
+        font-weight: 700;
+        padding: 7px 11px;
+        cursor: pointer;
+      }
+
+      button[aria-pressed="true"] {
+        border-color: var(--accent);
+        background: #e0f3ee;
+        color: var(--accent);
+      }
+
+      button.primary {
+        border-color: #0f5d53;
+        background: var(--accent);
+        color: #ffffff;
+      }
+
+      .status {
+        display: inline-flex;
+        align-items: center;
+        min-height: 32px;
+        border-radius: 999px;
+        padding: 0 12px;
+        font-weight: 800;
+        color: #075246;
+        background: #dff5ef;
+      }
+
+      .note {
+        color: var(--muted);
+        font-size: 13px;
+        margin-top: 14px;
+      }
+
+      @media (max-width: 840px) {
+        .grid { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Audio cleanup controls</h1>
+      <p class="lede">Improve episode sound with plain-language quality choices — not decibel sliders. Preview cleanup on real conversation moments before applying it across the episode.</p>
+
+      <section class="grid" aria-label="Audio cleanup workspace">
+        <div class="panel">
+          <h2>Quality choices</h2>
+          <div class="controls" id="controls"></div>
+
+          <h2>Preview moment</h2>
+          <div class="moments" id="moments" role="group" aria-label="Preview moment"></div>
+
+          <h2>Speaker balance</h2>
+          <div class="speakers" id="speakers"></div>
+        </div>
+
+        <aside class="panel" aria-live="polite">
+          <h2>Cleanup summary</h2>
+          <div id="status" class="status">Sounds ready</div>
+          <p class="note" id="summary"></p>
+          <button type="button" class="primary" id="apply" style="margin-top: 14px;">Apply to episode</button>
+        </aside>
+      </section>
+    </main>
+
+    <script>
+      const choices = [
+        { id: "noise", label: "Reduce background noise", hint: "Softens room hum without dulling voices" },
+        { id: "balance", label: "Balance loudness between speakers", hint: "Keeps host and guest at a natural level" },
+        { id: "quiet", label: "Enhance a quiet speaker", hint: "Lifts a soft guest without raising room noise" },
+        { id: "echo", label: "Reduce echo or room sound", hint: "Tames hollow rooms while keeping tone natural" },
+        { id: "peaks", label: "Smooth harsh or sudden peaks", hint: "Protects listeners on laughs and emphasis" },
+        { id: "clarity", label: "Improve overall speech clarity", hint: "Helps captions stay trustworthy" },
+      ];
+
+      const previewMoments = [
+        { id: "quiet-guest", label: "Quiet guest answer" },
+        { id: "exchange", label: "Host and guest exchange" },
+        { id: "noisy-room", label: "Noisy room stretch" },
+        { id: "peak", label: "Laugh or peak moment" },
+        { id: "caption-line", label: "Caption-sensitive line" },
+      ];
+
+      const sampleSpeakers = [
+        { name: "Host — Dana Brooks", state: "not needed" },
+        { name: "Guest 1 — Marcus Lee", state: "suggested" },
+      ];
+
+      let enabled = new Set(["balance", "quiet"]);
+      let preview = "quiet-guest";
+      let speakers = structuredClone(sampleSpeakers);
+      let applied = false;
+
+      const controlsElement = document.querySelector("#controls");
+      const momentsElement = document.querySelector("#moments");
+      const speakersElement = document.querySelector("#speakers");
+      const statusElement = document.querySelector("#status");
+      const summaryElement = document.querySelector("#summary");
+
+      document.querySelector("#apply").addEventListener("click", () => {
+        applied = true;
+        speakers = speakers.map((speaker) => ({
+          ...speaker,
+          state: speaker.state === "suggested" ? "applied" : speaker.state,
+        }));
+        render();
+      });
+
+      function render() {
+        controlsElement.replaceChildren(...choices.map(renderChoice));
+        momentsElement.replaceChildren(...previewMoments.map(renderMoment));
+        speakersElement.replaceChildren(...speakers.map(renderSpeaker));
+
+        const hasSuggested = speakers.some((speaker) => speaker.state === "suggested");
+        statusElement.textContent = applied || !hasSuggested ? "Sounds ready" : "Cleanup suggested";
+        summaryElement.textContent = applied
+          ? `Applied ${enabled.size} cleanup choice${enabled.size === 1 ? "" : "s"} after previewing "${previewMoments.find((moment) => moment.id === preview).label.toLowerCase()}".`
+          : hasSuggested
+            ? "Preview the guest track on a real moment, then apply cleanup across the episode or per speaker."
+            : "Tracks are already clean enough for the final episode.";
+      }
+
+      function renderChoice(choice) {
+        const article = document.createElement("article");
+        article.className = "control";
+        const copy = document.createElement("div");
+        const strong = document.createElement("strong");
+        strong.textContent = choice.label;
+        const span = document.createElement("span");
+        span.textContent = choice.hint;
+        copy.append(strong, span);
+
+        const input = document.createElement("input");
+        input.type = "checkbox";
+        input.checked = enabled.has(choice.id);
+        input.addEventListener("change", () => {
+          if (input.checked) enabled.add(choice.id);
+          else enabled.delete(choice.id);
+          applied = false;
+          render();
+        });
+
+        article.append(copy, input);
+        return article;
+      }
+
+      function renderMoment(moment) {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.textContent = moment.label;
+        button.setAttribute("aria-pressed", moment.id === preview ? "true" : "false");
+        button.addEventListener("click", () => {
+          preview = moment.id;
+          render();
+        });
+        return button;
+      }
+
+      function renderSpeaker(speaker) {
+        const article = document.createElement("article");
+        article.className = "speaker";
+        const head = document.createElement("div");
+        head.style.display = "flex";
+        head.style.justifyContent = "space-between";
+        head.style.gap = "10px";
+
+        const strong = document.createElement("strong");
+        strong.textContent = speaker.name;
+
+        const badge = document.createElement("span");
+        badge.className = `badge ${speaker.state === "suggested" ? "suggested" : speaker.state === "applied" ? "applied" : "clean"}`;
+        badge.textContent = speaker.state;
+
+        head.append(strong, badge);
+
+        const label = document.createElement("label");
+        label.textContent = "Track status";
+        const select = document.createElement("select");
+        for (const value of ["suggested", "applied", "accepted original", "not needed"]) {
+          const option = document.createElement("option");
+          option.value = value;
+          option.textContent = value;
+          option.selected = speaker.state === value;
+          select.appendChild(option);
+        }
+        select.addEventListener("change", () => {
+          speaker.state = select.value;
+          applied = false;
+          render();
+        });
+        label.appendChild(select);
+        article.append(head, label);
+        return article;
+      }
+
+      render();
+    </script>
+  </body>
+</html>
