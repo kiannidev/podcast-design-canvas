@@ -32,6 +32,7 @@ Guest profile suggestions can use:
 - creator search
 
 Suggested matches should require confirmation before applying to a new episode.
+Rejected matches should stay out of the current episode unless the creator explicitly searches again.
 
 ## Episode Review
 
@@ -44,6 +45,30 @@ When a profile is reused, show what changed since the last appearance:
 - blocked item still active
 
 Creators should be able to update the profile or apply changes only to the current episode.
+
+## Review States
+
+Use simple creator-facing states:
+
+- ready to reuse
+- confirm changed details
+- missing approved asset
+- keep episode-only override
+- not the same guest
+
+Each state should describe what changed, such as "Title changed since the last appearance and needs confirmation before reusing the lower-third."
+
+## Creator Controls
+
+Offer simple actions:
+
+- confirm suggested match
+- preview last approved lower-third and headshot
+- reuse approved details
+- keep this title or link only for this episode
+- update the reusable profile
+- remove stale guest detail
+- mark as not the same guest
 
 ## Reuse Routing
 
