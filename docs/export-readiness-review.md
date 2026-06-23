@@ -137,6 +137,8 @@ After export, the product should show:
 - any ignored warnings
 - next action such as download, publish, duplicate as template, or create clips
 
+When export fails after readiness review, recovery should follow `docs/render-failure-recovery.md` and preserve readiness decisions rather than resetting the episode.
+
 ## Maintainer Acceptance Notes
 
 Accept work that makes export feel like a publishing readiness step for long-form podcast episodes. Close work that focuses only on raw encoder settings, short-clip export, or hidden pipeline status without improving creator confidence in the final episode.
