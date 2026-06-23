@@ -34,6 +34,18 @@ Suggestions are a starting point. The creator confirms the approved pronunciatio
 
 Pronunciation review is confirm-in-context: creators hear the name at the real moment it is spoken and approve it there, rather than reading a phonetic table detached from the episode. A short plain-language note ("sounds like EYE-rin") is enough; the product should not require formal phonetic spelling.
 
+## Preview Contexts
+
+Creators should confirm a pronunciation where the name actually matters to viewers:
+
+- a guest introduction where the host says the name aloud
+- a lower-third or title card that displays the name on screen
+- a repeated mention later in the episode
+- an outro credits line that names the guest again
+- a sponsor or brand name spoken during a read
+
+Each preview should play the real spoken moment with the approved pronunciation note visible, so the creator confirms how the name sounds and reads together instead of approving text in isolation.
+
 ## Creator Controls
 
 Keep the controls creator-facing and tied to the people in the episode:
