@@ -34,6 +34,19 @@ Useful views include:
 
 Each view should link back to the relevant episode moment or product surface.
 
+## Creator Controls
+
+Organizing a workspace should follow podcast production, not generic file management. A team should be able to:
+
+- create a show or client workspace and keep its templates, brand kit, assets, and guests scoped to it
+- move or copy an episode, template, or asset between contexts only after confirming ownership
+- assign reviewers and a final approver to a show or episode
+- open any team view directly to the episode moment or product surface that needs attention
+- share a template, asset, or guest profile across shows only when the creator confirms it is reusable
+- keep solo creators on a simple default without requiring team setup
+
+Shared resources should always show their owning show or client before they are applied somewhere new.
+
 ## Boundaries
 
 Teams should not accidentally reuse assets, guests, or sponsor materials across the wrong client or show. The product should make ownership visible before applying shared resources.
