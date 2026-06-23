@@ -35,6 +35,18 @@ Flag visible layout problems:
 
 Framing review is moment first: creators preview the active speaker, current layout, destination crop, and approved visuals together at the timestamp where the issue appears.
 
+## Preview Contexts
+
+A framing fix that looks right in one view can fail in another, so each issue should be checked the way a viewer will actually see it before it is accepted:
+
+- full-size desktop preview with the active speaker and captions visible
+- mobile vertical crop, to confirm faces and lower-thirds are not cut off
+- the moment with approved b-roll or a title overlay active
+- the moment with a sponsor mark or logo in frame
+- a panel or split layout showing more than one speaker at once
+
+Every context should use the real episode frame at the flagged timestamp, so the creator judges one honest tradeoff instead of approving a fix that only works in the editor's main view.
+
 ## Review States
 
 The product should use framing status to drive layout review and export readiness:
