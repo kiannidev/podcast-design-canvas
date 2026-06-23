@@ -6,6 +6,20 @@ The canvas editor should let advanced creators customize a podcast layout withou
 
 A creator should be able to adjust speaker frames, captions, overlays, title elements, and b-roll zones directly on the canvas, then save those choices as a reusable show layout.
 
+## Relationship To Canvas Editing
+
+Canvas editing should start from episode context already in the workspace:
+
+- preset foundation from `docs/preset-style-picker.md`
+- speaker roles and layout fit from `docs/speaker-role-mapping.md`
+- safe areas from `docs/layout-safe-areas.md`
+- framing checks from `docs/speaker-framing-safety.md`
+- destination crops from `docs/destination-crop-previews.md`
+- brand kit from `docs/show-brand-kit-setup.md`
+- template reuse through `docs/show-template-adaptation.md`
+
+Unresolved layout problems that would affect export should surface through the surrounding review specs and later in export readiness, but the canvas should remain where creators fix them.
+
 ## Core Layers
 
 The layer stack should use podcast-specific objects:
@@ -20,6 +34,23 @@ The layer stack should use podcast-specific objects:
 - safe-area guides for publishing destinations
 
 Layer names should match what creators see in the episode. Avoid generic object names like rectangle 12 or media asset 4 in the primary UI.
+
+## Canvas Approach
+
+Canvas editing is layout first: creators adjust visible podcast objects against real episode moments and destination previews, not against a blank design surface detached from speaker buckets.
+
+## Review States
+
+The product should use canvas edit status to drive layout review:
+
+- **draft** — changes are visible in the current preview but not yet applied broadly or saved
+- **applied to moment** — the edit affects one timestamp or segment the creator chose
+- **applied broadly** — the same layout pattern carries to similar moments after confirmation
+- **saved to template** — the layout becomes reusable through `docs/show-template-adaptation.md`
+- **needs guardrail review** — a preview guardrail flagged overlap, crop, or brand readability that should be resolved before saving
+- **blocked for export** — an unresolved canvas conflict would hide speakers, captions, or brand marks in the chosen destination
+
+Each state should describe what happens in preview, template reuse, and the next creator action—not only the label on the edit.
 
 ## Direct Manipulation
 

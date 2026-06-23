@@ -17,6 +17,10 @@ Comparison preview should extend the preset workflow already defined in `docs/pr
 
 Comparison should help the creator choose between strong directions, not restart setup from scratch.
 
+## Comparison Approach
+
+Comparison preview is taste first: creators judge pacing, branding strength, and layout feel on the same real moment, then commit one preset to the full episode without re-running setup.
+
 ## Comparison Mode
 
 Comparison should support:
@@ -43,6 +47,18 @@ Each preset should communicate:
 - template reuse fit
 
 This should help creators make a taste decision quickly without opening a blank canvas.
+
+## Review States
+
+The product should use comparison status to drive preset selection:
+
+- **previewing** — two or more presets are visible on the same moment without changing the committed episode yet
+- **leading choice** — one preset clearly fits the show format and the creator is close to applying it
+- **needs another moment** — the current timestamp is not representative and the creator should switch preview moments
+- **applied** — the chosen preset returns to full-episode preview through `docs/preset-style-picker.md`
+- **saved as template** — the preset plus adjustments are stored through `docs/show-template-adaptation.md`
+
+Each state should describe what happens in preset selection, full-episode preview, and template reuse—not only the label on the card.
 
 ## Preview Controls
 

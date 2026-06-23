@@ -6,6 +6,19 @@ Accessibility checks should protect viewer clarity without making creators think
 
 A creator should be able to catch captions, contrast, motion, and layout issues that make a podcast episode harder to watch or understand.
 
+## Relationship To Layout Review
+
+Readability review should start from episode context already in the workspace:
+
+- caption style from `docs/audio-caption-quality-review.md`
+- safe areas from `docs/layout-safe-areas.md`
+- destination crops from `docs/destination-crop-previews.md`
+- brand guardrails from `docs/show-brand-kit-setup.md`
+- speaker framing from `docs/speaker-framing-safety.md`
+- contextual visuals from `docs/contextual-broll-moments.md`
+
+Issues that would affect the chosen export destination should surface in `docs/export-readiness-review.md` Readability Warnings.
+
 ## Checks
 
 Flag viewer-facing issues:
@@ -21,7 +34,22 @@ Flag viewer-facing issues:
 
 Checks should explain the viewing problem and offer a direct fix.
 
-Issues that would affect the chosen export destination should surface in `docs/export-readiness-review.md` Readability Warnings.
+## Readability Approach
+
+Readability review is viewer first: creators judge captions, contrast, and motion at the destination preview size where the problem would appear, not through a separate compliance checklist.
+
+## Review States
+
+The product should use readability status to drive layout review and export readiness:
+
+- **clear** — captions, contrast, and motion read well for the chosen destination
+- **flagged** — show the issue on the affected moment and preview size with a direct fix
+- **fixed** — apply the chosen readability change and refresh destination previews
+- **applied broadly** — carry the same fix to similar moments after the creator confirms the pattern
+- **accepted** — keep the current treatment when the creator marks it as intentional and clear the related export warning
+- **blocked for export** — low contrast, unreadable text, or harmful motion would ship in the finished episode unless fixed or explicitly ignored
+
+Each state should describe what happens in preview, export warnings, and the next creator action—not only the label on the issue.
 
 ## Preview Contexts
 
