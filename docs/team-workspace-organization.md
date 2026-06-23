@@ -47,6 +47,18 @@ Organizing a workspace should follow podcast production, not generic file manage
 
 Shared resources should always show their owning show or client before they are applied somewhere new.
 
+## Review States
+
+Use simple creator-facing states:
+
+- scoped — templates, assets, and guests stay inside the current show or client workspace
+- shared pending — a resource is marked for reuse elsewhere but has not been applied yet
+- needs confirmation — moving an episode or asset would cross a client or show boundary
+- reviewer assigned — review copy or export approval has named reviewers for this show
+- ready to hand off — exports and review copies in this workspace are ready for the next production step
+
+Each state should describe what the team can apply or share next, such as "Sponsor kit belongs to Client A and cannot move to Client B without confirmation."
+
 ## Boundaries
 
 Teams should not accidentally reuse assets, guests, or sponsor materials across the wrong client or show. The product should make ownership visible before applying shared resources.
