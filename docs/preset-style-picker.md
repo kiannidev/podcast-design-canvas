@@ -32,6 +32,18 @@ Each preset card should show:
 
 Preset selection is visual first: creators preview a polished episode direction from real speaker media, not a generic settings form.
 
+## Preview Contexts
+
+A preset that looks strong in one view can fail in another, so the creator should compare it on honest episode moments before applying it:
+
+- a solo host close-up from the current recording
+- a host-and-guest split for the episode's actual speaker count
+- a moment with captions and lower-thirds visible
+- a calmer stretch and a more energetic exchange from the same episode
+- the chosen destination crop with brand kit applied
+
+Every context should use the real episode frame at the same timestamp, so the creator judges one preset direction instead of a styled card with placeholder media.
+
 ## Controls
 
 Keep the controls creator-facing:
