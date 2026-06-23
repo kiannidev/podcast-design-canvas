@@ -40,7 +40,7 @@ Pacing owns how energetic an episode feels, but each concrete change it triggers
 | Pacing effect | Owning spec | Relevant section |
 | --- | --- | --- |
 | frequency of title moments | `docs/contextual-title-cards.md` | Sources, Creator Controls |
-| b-roll suggestion intensity | `docs/contextual-broll-moments.md` | Moment Sources, Approval Flow |
+| b-roll suggestion intensity | `docs/contextual-broll-moments.md` | Moment Sources, Review States |
 | caption emphasis | `docs/audio-caption-quality-review.md` | Caption Style Presets |
 | speaker frame changes | `docs/speaker-framing-safety.md` | Framing Approach, Review States |
 | pause trimming recommendations | `docs/pause-crosstalk-cleanup.md` | Detected Moments, Cleanup Actions |
