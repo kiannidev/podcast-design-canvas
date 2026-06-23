@@ -51,6 +51,17 @@ Shared resources should always show their owning show or client before they are 
 
 Teams should not accidentally reuse assets, guests, or sponsor materials across the wrong client or show. The product should make ownership visible before applying shared resources.
 
+## Team Checkpoints
+
+When more than one person works in a workspace, organization should stay readable instead of turning into generic file storage:
+
+- show which show or client owns an episode, template, or asset in plain language, not a raw folder path
+- keep team views grouped by production context such as episodes needing review or exports ready to publish, not by who edited last
+- make client and show boundaries visible before a shared template, asset, or guest profile is applied somewhere new
+- let any collaborator open a team view to the exact episode moment or product surface that needs attention
+
+Solo creators should never see team attribution clutter; show it only when a workspace actually has more than one editor. Reviewer and approver assignment stays in `docs/client-review-copy-flow.md` — this view only organizes the creative assets and episodes teams already manage.
+
 ## Maintainer Acceptance Notes
 
 Accept work that makes multi-show podcast production easier for teams and agencies. Close work that turns the workspace into generic file storage or hides client and show boundaries.
