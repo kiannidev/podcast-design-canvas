@@ -95,6 +95,17 @@ Use simple creator-facing states:
 
 Each state should describe the creative effect, such as "Restore would revert the caption style from the last template change."
 
+## Team Checkpoints
+
+When more than one person edits an episode, version history should stay readable instead of turning into a raw edit log:
+
+- show which collaborator made a checkpoint in plain language, not a raw user ID
+- keep the checkpoint list grouped by creator-meaningful event, not by who saved last
+- make a protected final or client-approved checkpoint safe from overwrite no matter who is editing
+- let any collaborator label, pin, or compare a checkpoint without changing whose work it was
+
+Solo creators should never see team attribution clutter; show it only when a workspace actually has more than one editor. Workspace, reviewer, and approver organization itself stays in `docs/team-workspace-organization.md` — this view only attributes the meaningful checkpoints it already shows.
+
 ## Maintainer Acceptance Notes
 
 Accept work that makes meaningful episode decisions recoverable and understandable. Close work that shows raw autosave logs, treats exports as editable versions, or makes template changes ambiguous.
