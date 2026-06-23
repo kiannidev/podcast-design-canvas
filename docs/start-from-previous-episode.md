@@ -37,6 +37,18 @@ The creator should be able to:
 
 This should feel like a fast starting point between `docs/show-template-adaptation.md` and `docs/episode-ingest-readiness.md`: reuse the show's proven structure first, then confirm the new episode's real speakers and files before styling continues.
 
+## Review States
+
+Keep clone status simple and creator-facing:
+
+- draft from previous — the new episode opened with reusable design from a recent episode
+- media replaced — new recordings are imported into the existing speaker buckets
+- roles confirmed — speaker buckets and roles match the new episode's actual media
+- ready to style — ingest readiness cleared and preset or canvas work can continue
+- saved to template — refinements were saved back to the show template for future episodes
+
+Each state should describe what the creator should do next, not which episode was cloned.
+
 ## Boundaries
 
 Starting from a previous episode should stay a draft starting point, not a link to the finished episode. Editing the new episode must never change the already exported episode it started from.
