@@ -6,6 +6,20 @@ Destination crop previews should show creators how the same episode design will 
 
 A creator should be able to check whether speakers, captions, logos, thumbnails, and sponsor elements still work when the episode is prepared for different destinations.
 
+## Relationship To Export Flow
+
+Destination crop review should start from episode context already in the workspace:
+
+- publish destination defaults from `docs/publish-destination-presets.md`
+- safe areas from `docs/layout-safe-areas.md`
+- speaker framing from `docs/speaker-framing-safety.md`
+- caption placement from `docs/audio-caption-quality-review.md`
+- thumbnail selection from `docs/thumbnail-cover-frame.md`
+- brand and sponsor placement from `docs/show-brand-kit-setup.md`
+- export readiness summary from `docs/export-readiness-review.md`
+
+Destination crop issues that would affect the chosen export destination should surface in `docs/export-readiness-review.md` Readability Warnings and Speaker Framing Warnings.
+
 ## Preview Surfaces
 
 Support previews for:
@@ -32,7 +46,9 @@ Flag visible issues:
 
 Each issue should link to the affected preview surface and moment.
 
-Destination crop issues that would affect the chosen export destination should surface in `docs/export-readiness-review.md` Readability Warnings and Speaker Framing Warnings.
+## Preview Approach
+
+Crop review is surface first: creators compare the same episode moment across destinations side by side, then fix the layout once rather than tuning each crop in isolation. Surface States below should drive which previews block export readiness for the chosen destination.
 
 ## Fixes
 
@@ -44,6 +60,8 @@ Offer direct fixes:
 - use safer logo position
 - switch layout for cropped output
 - export only the long-form master
+
+Avoid treating destination previews as a separate short-form editor that overrides the core long-form episode layout without the creator's confirmation.
 
 ## Surface States
 

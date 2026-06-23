@@ -60,6 +60,8 @@ When a brand choice trips a guardrail, the creator should stay in control of the
 
 A brand kit should never block a creator from previewing an episode. Unresolved conflicts should remain visible warnings the creator can revisit, not hard stops.
 
+Brand conflicts that would affect the chosen export destination should surface in `docs/export-readiness-review.md` Thumbnail Warnings.
+
 ## Reuse
 
 A brand kit should attach to a show template but remain editable. Teams should be able to update future episodes without changing already exported episodes.
