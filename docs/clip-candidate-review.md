@@ -33,6 +33,26 @@ Each candidate should show:
 - caption readiness
 - link back to the full episode moment
 
+## Review Actions
+
+Reviewing candidates should feel like picking favorites, not editing a second timeline. Each candidate should carry a simple state:
+
+- approved — kept as a clip to export or refine later
+- suggested — a proposed moment the creator has not decided on
+- adjusted — trimmed or re-hooked from the original suggestion
+- dismissed — not a good clip, hidden from the list
+
+Keep the actions light:
+
+- approve a candidate in one action
+- nudge the start or end without opening a full editor
+- pick a different hook or caption emphasis for the clip
+- group related candidates from the same moment
+- dismiss a weak suggestion
+- jump back to the moment in the full episode
+
+Approving or adjusting a clip should never change the long-form edit: clips stay downstream copies that point back to the source moment. Dismissed candidates should stay out of the list unless the creator asks to see them again.
+
 ## Boundaries
 
 Clip review should remain downstream of the long-form workflow. It should not force short-form pacing, captions, or crops into the full episode.
