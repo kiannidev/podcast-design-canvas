@@ -58,4 +58,4 @@ Avoid compressor settings, sidechain routing, decibel thresholds, waveform editi
 
 ## Publish Readiness
 
-Ducking issues should appear in audio and caption review when music makes speech or captions less trustworthy. They should block publish readiness only when the overlapped spoken moment is necessary for viewers to understand the episode, sponsor message, or chapter transition.
+Ducking issues should appear in `docs/export-readiness-review.md` Placed Cue Warnings when music makes speech or captions less trustworthy. They should block publish readiness only when the overlapped spoken moment is necessary for viewers to understand the episode, sponsor message, or chapter transition.

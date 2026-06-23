@@ -35,6 +35,15 @@ Flag only cue issues that affect the exported episode:
 
 Each warning should link back to the place where the creator can fix it, such as cue setup, speech ducking review, sponsor placement review, or template adaptation. Unused library music and draft cues that are not present in the export should not affect readiness.
 
+Ducking overlaps from placed cues should appear with these warnings rather than as a separate audio engineering queue:
+
+| Warning type | Source spec | Relevant section |
+| --- | --- | --- |
+| speech overlap under placed cue | `docs/music-ducking-under-speech.md` | When To Flag, Review States |
+| cue placement context | `docs/music-cue-setup.md` | Placement Flow, Review States |
+
+Flag ducking only when overlapped speech is necessary for viewers to understand the episode, sponsor message, or chapter transition. Short intentional overlaps can stay quiet when speech remains clear.
+
 ## Chapter Marker Warnings
 
 When chapters from `docs/episode-chapter-markers.md` are included in the finished episode, readiness should treat them as part of metadata and navigation review rather than as a separate marker-editing queue.
