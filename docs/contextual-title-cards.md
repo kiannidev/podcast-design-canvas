@@ -40,6 +40,18 @@ Use simple states:
 
 These states should appear in `docs/export-readiness-review.md` Contextual Visual Warnings only when a title card in the export would affect the finished episode.
 
+## Preview Contexts
+
+A title card that reads well in one view can fail in another, so each card should be checked the way a viewer will actually see it before it is approved:
+
+- full-size desktop preview with the active speaker visible
+- small mobile preview, to confirm the text stays readable
+- the card over live captions, to confirm it does not bury a line viewers need
+- the card held on a paused frame, to confirm it reads on its own
+- the seconds just before and after, to confirm it does not collide with a neighboring overlay or b-roll moment
+
+Every context should use the real episode frame and the same card, so the creator judges one honest tradeoff instead of approving a card that only works in the editor's main view.
+
 ## Template Reuse
 
 Title card styles and placement rules should save with the show template described in `docs/show-template-adaptation.md`, so recurring segments and guest introductions keep a consistent look across episodes.
