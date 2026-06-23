@@ -43,7 +43,7 @@ When chapters from `docs/episode-chapter-markers.md` are included in the finishe
 | --- | --- | --- |
 | chapter title and timing issues | `docs/episode-chapter-markers.md` | Review States, Creator Controls |
 | export metadata gaps | `docs/episode-metadata-publishing.md` | Chapter Workflow, Readiness Checks |
-| checklist blocking | `docs/publish-checklist.md` | Checklist Items, Review Approvals |
+| checklist blocking | `docs/publish-checklist.md` | Checklist Item Mapping, Review Approvals |
 
 Flag only chapter issues that affect the exported episode:
 
@@ -74,6 +74,25 @@ Flag only readability issues that affect the exported episode:
 - title text is unreadable in thumbnail or mobile preview
 
 Each warning should link back to the review surface where the creator can fix it. Informational preview notes that do not affect the chosen export destination should not block readiness.
+
+## Speaker Framing Warnings
+
+When speaker visibility or layout framing would affect the exported episode, readiness should surface framing issues as part of layout review rather than as a separate crop editor.
+
+| Warning type | Source spec | Relevant section |
+| --- | --- | --- |
+| face and overlay conflicts | `docs/speaker-framing-safety.md` | Checks, Fixes |
+| role-based layout fit | `docs/speaker-role-mapping.md` | Layout Effects |
+| destination crop impact | `docs/destination-crop-previews.md` | Checks, Fixes |
+
+Flag only framing issues that affect the exported episode:
+
+- active speaker covered by captions, lower-thirds, or b-roll
+- face cropped too tightly for the destination
+- panel layout makes one speaker unreadable
+- mobile crop cuts off a guest
+
+Each warning should link back to the moment and preview surface where the creator can fix it.
 
 ## Timeline Checks
 

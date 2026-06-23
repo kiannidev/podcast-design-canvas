@@ -20,6 +20,8 @@ Flag visible layout problems:
 
 Warnings should link to the exact moment and preview size where the issue appears.
 
+Framing issues that would affect the chosen export destination should surface in `docs/export-readiness-review.md` Speaker Framing Warnings.
+
 ## Fixes
 
 Offer direct fixes:
