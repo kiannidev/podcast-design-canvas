@@ -47,6 +47,19 @@ The default state should favor restraint. A long episode should not become visua
 
 Visual issues that would affect the chosen export destination should surface in `docs/export-readiness-review.md` Contextual Visual Warnings.
 
+## Review States
+
+Use simple, creator-facing states so a long episode's visual moments stay easy to scan:
+
+- suggested — the product proposed a moment with a visible reason
+- approved — the creator accepted it for this episode
+- adjusted — approved with a changed treatment, timing, or strength
+- rejected — dismissed for this episode
+- pinned — kept in the show template as a recurring moment
+- needs review — low-confidence context the creator should check
+
+States should group in the long-form review surface rather than flag every candidate equally, so the default view stays calm.
+
 ## Quality Rules
 
 Suggestions should avoid:
