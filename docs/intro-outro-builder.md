@@ -51,6 +51,18 @@ Outro content should be easy to keep, remove, or adapt per episode.
 
 Intro and outro editing is episode first: creators preview openings and closings against the episode's real first and last speaker moments, not detached template slides. Defaults should favor a short, branded opening, and creators should be able to shorten or skip an intro for one episode without breaking the saved template.
 
+## Preview Contexts
+
+Creators should judge an intro or outro on the episode moments where framing actually lands:
+
+- the first spoken line after the opening sequence starts
+- the host-and-guest layout at the episode opening
+- the final sign-off before the outro music or credits begin
+- the outro with sponsor acknowledgement and guest links visible
+- the chosen destination crop at both the opening and closing
+
+Every context should use the real episode frame and metadata, so the creator judges one honest tradeoff instead of approving a detached template slide.
+
 ## Template Behavior
 
 Reusable intros and outros should store structure and brand treatment while replacing episode-specific names, titles, and links for each new episode.
