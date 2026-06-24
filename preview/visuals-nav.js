@@ -121,10 +121,10 @@ function renderVisualsNav() {
     prevLink.textContent = `Previous: ${previous.label}`;
     wrap.appendChild(prevLink);
   } else {
-    const style = document.createElement("a");
-    style.href = "speaker-framing-safety.html";
-    style.textContent = "Previous: Speaker framing safety";
-    wrap.appendChild(style);
+    const correction = document.createElement("a");
+    correction.href = "on-screen-correction-note.html";
+    correction.textContent = "Previous: On-screen correction note";
+    wrap.appendChild(correction);
   }
 
   if (next) {
