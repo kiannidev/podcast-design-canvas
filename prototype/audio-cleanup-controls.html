@@ -121,7 +121,7 @@
       .badge.suggested { color: #7a4400; background: #fff1d6; }
       .badge.applied { color: #075246; background: #dff5ef; }
       .badge.original { color: #3f4d66; background: #e8edf5; }
-      .badge.clean { color: #075246; background: #dff5ef; }
+      .badge.not-needed { color: #5e6b67; background: #eef2f0; }
 
       .moments {
         display: flex;
@@ -257,6 +257,24 @@
         margin-top: 14px;
       }
 
+      .speaker-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      button.secondary {
+        min-height: 38px;
+        border: 1px solid #b9c8c3;
+        border-radius: 6px;
+        background: #ffffff;
+        color: var(--ink);
+        font: inherit;
+        font-weight: 700;
+        padding: 7px 11px;
+        cursor: pointer;
+      }
+
       @media (max-width: 840px) {
         .grid { grid-template-columns: 1fr; }
       }
@@ -319,8 +337,9 @@
       };
 
       const sampleSpeakers = [
-        { name: "Host — Dana Brooks", state: "not needed" },
-        { name: "Guest 1 — Marcus Lee", state: "suggested" },
+        { id: "host", name: "Host — Dana Brooks", state: "not needed" },
+        { id: "guest-1", name: "Guest 1 — Marcus Lee", state: "suggested" },
+        { id: "guest-2", name: "Guest 2 — Priya Shah", state: "suggested" },
       ];
 
       let enabled = new Set(["balance", "quiet"]);
@@ -349,16 +368,51 @@
         controlsElement.replaceChildren(...choices.map(renderChoice));
         momentsElement.replaceChildren(...previewMoments.map(renderMoment));
         renderCompare();
-        speakersElement.replaceChildren(...speakers.map(renderSpeaker));
+        speakersElement.replaceChildren(...speakers.map((speaker, index) => renderSpeaker(speaker, index)));
         renderMomentHint();
 
+        statusElement.textContent = speakers.some((speaker) => speaker.state === "suggested")
+          ? "Cleanup suggested"
+          : "Sounds ready";
+        summaryElement.textContent = buildSummary();
+      }
+
+      function bucketLabel(speaker) {
+        return speaker.name.split(" — ")[0];
+      }
+
+      function buildSummary() {
         const hasSuggested = speakers.some((speaker) => speaker.state === "suggested");
-        statusElement.textContent = applied || !hasSuggested ? "Sounds ready" : "Cleanup suggested";
-        summaryElement.textContent = applied
-          ? `Applied ${enabled.size} cleanup choice${enabled.size === 1 ? "" : "s"} after previewing "${previewMoments.find((moment) => moment.id === preview).label.toLowerCase()}".`
-          : hasSuggested
-            ? "Compare original and cleaned audio on a real moment, then apply cleanup across the episode."
-            : "Tracks are already clean enough for the final episode.";
+        if (hasSuggested) {
+          return "Compare original and cleaned audio on a real moment, then apply cleanup across the episode.";
+        }
+
+        const appliedSpeakers = speakers.filter((speaker) => speaker.state === "applied");
+        const keptOriginal = speakers.filter((speaker) => speaker.state === "accepted original");
+        const parts = [];
+
+        if (appliedSpeakers.length) {
+          parts.push(
+            `Applied ${enabled.size} cleanup choice${enabled.size === 1 ? "" : "s"} to ${appliedSpeakers.map(bucketLabel).join(" and ")} after previewing "${previewMoments.find((moment) => moment.id === preview).label.toLowerCase()}".`,
+          );
+        }
+
+        if (keptOriginal.length) {
+          parts.push(`${keptOriginal.map(bucketLabel).join(" and ")} kept original audio on purpose.`);
+        }
+
+        if (parts.length) {
+          return parts.join(" ");
+        }
+
+        return "Tracks are already clean enough for the final episode.";
+      }
+
+      function speakerBadgeClass(state) {
+        if (state === "suggested") return "suggested";
+        if (state === "applied") return "applied";
+        if (state === "accepted original") return "original";
+        return "not-needed";
       }
 
       function suggestedMoments() {
@@ -525,7 +579,7 @@
         return button;
       }
 
-      function renderSpeaker(speaker) {
+      function renderSpeaker(speaker, index) {
         const article = document.createElement("article");
         article.className = "speaker";
         const head = document.createElement("div");
@@ -537,7 +591,7 @@
         strong.textContent = speaker.name;
 
         const badge = document.createElement("span");
-        badge.className = `badge ${speaker.state === "suggested" ? "suggested" : speaker.state === "applied" ? "applied" : "clean"}`;
+        badge.className = `badge ${speakerBadgeClass(speaker.state)}`;
         badge.textContent = speaker.state;
 
         head.append(strong, badge);
@@ -559,6 +613,23 @@
         });
         label.appendChild(select);
         article.append(head, label);
+
+        if (speaker.state === "suggested" || speaker.state === "applied") {
+          const actions = document.createElement("div");
+          actions.className = "speaker-actions";
+          const revertButton = document.createElement("button");
+          revertButton.type = "button";
+          revertButton.className = "secondary";
+          revertButton.textContent = "Revert to original";
+          revertButton.addEventListener("click", () => {
+            speakers[index].state = "accepted original";
+            applied = false;
+            render();
+          });
+          actions.appendChild(revertButton);
+          article.appendChild(actions);
+        }
+
         return article;
       }
 
