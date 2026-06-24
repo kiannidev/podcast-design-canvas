@@ -1,0 +1,419 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Screen Share Moment Review Prototype</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #16211f;
+        --muted: #5e6b67;
+        --line: #d9e0dd;
+        --panel: #f7faf8;
+        --accent: #136f63;
+        --warn: #a15c00;
+        --block: #a52828;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        color: var(--ink);
+        background: #ffffff;
+      }
+
+      main {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 32px 20px 48px;
+      }
+
+      h1, h2, p { margin-top: 0; }
+
+      h1 {
+        font-size: 32px;
+        line-height: 1.1;
+        margin-bottom: 8px;
+      }
+
+      .lede {
+        color: var(--muted);
+        max-width: 760px;
+      }
+
+      .workspace {
+        display: grid;
+        grid-template-columns: minmax(0, 1.5fr) minmax(320px, 0.85fr);
+        gap: 24px;
+        margin-top: 28px;
+      }
+
+      .panel {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel);
+        padding: 18px;
+      }
+
+      .moments { display: grid; gap: 14px; }
+
+      .moment-card {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #ffffff;
+        padding: 14px;
+        display: grid;
+        gap: 12px;
+      }
+
+      .head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+      }
+
+      .context {
+        border-left: 4px solid var(--warn);
+        border-radius: 6px;
+        background: #fffdf8;
+        padding: 12px;
+        font-size: 13px;
+      }
+
+      .context strong { display: block; margin-bottom: 4px; }
+
+      label {
+        display: grid;
+        gap: 6px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      select {
+        width: 100%;
+        min-height: 38px;
+        border: 1px solid #bfcbc7;
+        border-radius: 6px;
+        background: #ffffff;
+        color: var(--ink);
+        font: inherit;
+        padding: 8px 10px;
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      button {
+        min-height: 38px;
+        border: 1px solid #0f5d53;
+        border-radius: 6px;
+        background: var(--accent);
+        color: #ffffff;
+        font: inherit;
+        font-weight: 700;
+        padding: 7px 12px;
+        cursor: pointer;
+      }
+
+      button.secondary {
+        background: #ffffff;
+        color: var(--accent);
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        min-height: 28px;
+        border-radius: 999px;
+        padding: 0 11px;
+        font-weight: 700;
+        font-size: 13px;
+      }
+
+      .badge.ready { color: #075246; background: #dff5ef; }
+      .badge.focus { color: #7a4400; background: #fff1d6; }
+      .badge.unreadable { color: #8b1e1e; background: #ffe0e0; }
+      .badge.small { color: #5a3f8f; background: #efe8ff; }
+      .badge.hidden { color: #5e6b67; background: #eef2f0; }
+      .badge.skipped { color: #3f4d66; background: #e8edf5; }
+
+      .status {
+        display: inline-flex;
+        align-items: center;
+        min-height: 32px;
+        border-radius: 999px;
+        padding: 0 12px;
+        font-weight: 800;
+      }
+
+      .status.ready { color: #075246; background: #dff5ef; }
+      .status.review { color: #7a4400; background: #fff1d6; }
+
+      .issues { display: grid; gap: 10px; margin-top: 14px; }
+
+      .issue {
+        border-left: 4px solid var(--warn);
+        border-radius: 6px;
+        background: #ffffff;
+        padding: 12px;
+      }
+
+      .issue.blocker { border-left-color: var(--block); }
+      .issue strong { display: block; margin-bottom: 4px; }
+      .issue span { color: var(--muted); font-size: 13px; }
+
+      .note {
+        color: var(--muted);
+        font-size: 13px;
+        margin-top: 14px;
+      }
+
+      @media (max-width: 840px) {
+        .workspace { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Screen share moment review</h1>
+      <p class="lede">Decide when a shared screen should lead the layout, stay beside the speaker, or be skipped — without capture settings or monitor diagnostics.</p>
+
+      <section class="workspace" aria-label="Screen share moment review workspace">
+        <div class="panel">
+          <h2>Shared-screen moments</h2>
+          <div class="moments" id="moments"></div>
+          <div class="actions" style="margin-top: 18px;">
+            <button type="button" class="secondary" id="reset">Reset sample</button>
+          </div>
+        </div>
+
+        <aside class="panel" aria-live="polite">
+          <h2>Visual review</h2>
+          <div id="status" class="status review">Screen moments need review</div>
+          <div class="issues" id="issues"></div>
+          <p class="note" id="note"></p>
+        </aside>
+      </section>
+    </main>
+
+    <script>
+      const layouts = {
+        feature: "Feature shared screen for this moment",
+        side: "Keep speaker and screen side by side",
+        focus: "Choose a readable focus area",
+        replace: "Replace with approved visual or title card",
+        hide: "Hide private or unreadable frame",
+      };
+
+      const sampleMoments = [
+        {
+          id: "demo",
+          title: "Product walkthrough",
+          transcript: "Let me show you the dashboard…",
+          time: "08:14",
+          issue: "needs focus",
+          proposedLayout: "focus",
+          resolution: null,
+        },
+        {
+          id: "slides",
+          title: "Slide deck segment",
+          transcript: "On this next slide you'll see…",
+          time: "19:02",
+          issue: "speaker too small",
+          proposedLayout: "side",
+          resolution: null,
+        },
+        {
+          id: "blank",
+          title: "Accidental blank screen",
+          transcript: "(screen share continues)",
+          time: "26:41",
+          issue: "screen unreadable",
+          proposedLayout: "hide",
+          resolution: null,
+        },
+      ];
+
+      let moments = structuredClone(sampleMoments);
+
+      const momentsElement = document.querySelector("#moments");
+      const statusElement = document.querySelector("#status");
+      const issuesElement = document.querySelector("#issues");
+      const noteElement = document.querySelector("#note");
+
+      document.querySelector("#reset").addEventListener("click", () => {
+        moments = structuredClone(sampleMoments);
+        render();
+      });
+
+      function evaluate(list) {
+        return list.map((moment) => {
+          let state = moment.issue;
+          let summary = null;
+
+          if (moment.resolution === "confirmed") {
+            state = moment.proposedLayout === "hide" ? "private frame hidden"
+              : moment.proposedLayout === "replace" ? "ready"
+              : "ready";
+            summary = {
+              title: `${moment.title}: layout confirmed`,
+              action: layouts[moment.proposedLayout],
+              tone: "info",
+            };
+          } else if (moment.resolution === "skipped") {
+            state = "skipped";
+            summary = {
+              title: `${moment.title}: skipped for export`,
+              action: "Moment stays out of the finished episode without clearing unrelated warnings.",
+              tone: "info",
+            };
+          } else {
+            state = moment.issue;
+            summary = {
+              title: `${moment.title} at ${moment.time}`,
+              action: `"${moment.transcript}" — choose a layout and confirm before export.`,
+              tone: moment.issue === "screen unreadable" ? "blocker" : "review",
+            };
+          }
+
+          return { ...moment, state, summary };
+        });
+      }
+
+      function badgeClass(state) {
+        if (state === "ready") return "ready";
+        if (state === "needs focus") return "focus";
+        if (state === "screen unreadable") return "unreadable";
+        if (state === "speaker too small") return "small";
+        if (state === "private frame hidden") return "hidden";
+        if (state === "skipped") return "skipped";
+        return "focus";
+      }
+
+      function renderMoment(moment, result) {
+        const article = document.createElement("article");
+        article.className = "moment-card";
+        article.dataset.id = moment.id;
+
+        const head = document.createElement("div");
+        head.className = "head";
+        const title = document.createElement("strong");
+        title.textContent = moment.title;
+        const badge = document.createElement("span");
+        badge.className = `badge ${badgeClass(result.state)}`;
+        badge.textContent = result.state;
+        head.append(title, badge);
+
+        const context = document.createElement("div");
+        context.className = "context";
+        const contextTitle = document.createElement("strong");
+        contextTitle.textContent = `Transcript context · ${moment.time}`;
+        const contextCopy = document.createElement("span");
+        contextCopy.textContent = moment.transcript;
+        context.append(contextTitle, contextCopy);
+
+        const label = document.createElement("label");
+        label.textContent = "Proposed layout";
+        const select = document.createElement("select");
+        select.dataset.id = moment.id;
+        for (const [value, copy] of Object.entries(layouts)) {
+          const option = document.createElement("option");
+          option.value = value;
+          option.textContent = copy;
+          option.selected = value === moment.proposedLayout;
+          select.appendChild(option);
+        }
+        select.addEventListener("change", (event) => {
+          const item = moments.find((entry) => entry.id === event.target.dataset.id);
+          item.proposedLayout = event.target.value;
+          item.resolution = null;
+          updateMomentBadge(moment.id);
+          renderSummaryOnly();
+        });
+        label.appendChild(select);
+
+        const actions = document.createElement("div");
+        actions.className = "actions";
+
+        const confirmButton = document.createElement("button");
+        confirmButton.type = "button";
+        confirmButton.textContent = "Confirm layout";
+        confirmButton.addEventListener("click", () => {
+          const item = moments.find((entry) => entry.id === moment.id);
+          item.resolution = "confirmed";
+          render();
+        });
+
+        const skipButton = document.createElement("button");
+        skipButton.type = "button";
+        skipButton.className = "secondary";
+        skipButton.textContent = "Skip for export";
+        skipButton.addEventListener("click", () => {
+          const item = moments.find((entry) => entry.id === moment.id);
+          item.resolution = "skipped";
+          render();
+        });
+
+        actions.append(confirmButton, skipButton);
+        article.append(head, context, label, actions);
+        return article;
+      }
+
+      function updateMomentBadge(id) {
+        const results = evaluate(moments);
+        const result = results.find((entry) => entry.id === id);
+        const badge = document.querySelector(`.moment-card[data-id="${id}"] .badge`);
+        if (badge) {
+          badge.className = `badge ${badgeClass(result.state)}`;
+          badge.textContent = result.state;
+        }
+      }
+
+      function renderSummaryOnly() {
+        const results = evaluate(moments);
+        const open = results.some((result) =>
+          !["ready", "skipped", "private frame hidden"].includes(result.state) && result.resolution !== "confirmed" && result.resolution !== "skipped",
+        );
+        const unresolved = results.filter((result) => result.resolution === null);
+
+        statusElement.className = `status ${unresolved.length ? "review" : "ready"}`;
+        statusElement.textContent = unresolved.length
+          ? "Screen moments need review"
+          : "Screen layouts ready";
+
+        issuesElement.replaceChildren(...results.map((result) => result.summary).filter(Boolean).map(renderIssue));
+
+        noteElement.textContent = unresolved.length
+          ? "Preview each shared-screen moment in transcript context, then confirm layout or skip for export."
+          : "All screen-share moments are confirmed or intentionally skipped.";
+      }
+
+      function renderIssue(issue) {
+        const article = document.createElement("article");
+        article.className = `issue ${issue.tone === "blocker" ? "blocker" : ""}`;
+        const strong = document.createElement("strong");
+        strong.textContent = issue.title;
+        const span = document.createElement("span");
+        span.textContent = issue.action;
+        article.append(strong, span);
+        return article;
+      }
+
+      function render() {
+        const results = evaluate(moments);
+        momentsElement.replaceChildren(...moments.map((moment, index) => renderMoment(moment, results[index])));
+        renderSummaryOnly();
+      }
+
+      render();
+    </script>
+  </body>
+</html>
