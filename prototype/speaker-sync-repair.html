@@ -1046,6 +1046,26 @@
           repairLabel.appendChild(repairSelect);
           article.appendChild(repairLabel);
 
+          const previewMoment = rollupPreviewMoment(track);
+          if (previewMoment?.label) {
+            const jumpRow = document.createElement("div");
+            jumpRow.className = "actions";
+            const jumpButton = document.createElement("button");
+            jumpButton.type = "button";
+            jumpButton.className = "secondary moment-choice";
+            jumpButton.textContent = `Preview on ${previewMoment.label.toLowerCase()}`;
+            jumpButton.addEventListener("click", () => {
+              tracks[index].previewMoment = previewMoment.id;
+              render();
+              const compareWrap = document.querySelector(`#track-${track.id} .compare-wrap`);
+              if (compareWrap) {
+                compareWrap.scrollIntoView({ behavior: "smooth", block: "nearest" });
+              }
+            });
+            jumpRow.appendChild(jumpButton);
+            article.appendChild(jumpRow);
+          }
+
           article.appendChild(renderPreviewMomentPicker(track, index));
           article.appendChild(renderCompare(track));
 
