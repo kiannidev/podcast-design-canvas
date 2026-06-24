@@ -23,6 +23,11 @@ assert.match(html, /Reset videos/, "layout-first lets creators reset placed vide
 assert.match(html, /layout-slot-status/, "layout-first reports video slot fill status");
 assert.ok(html.includes("placeVideoFile"), "layout-first accepts dropped video files into layout slots");
 assert.ok(html.includes('file.type.startsWith("video/")'), "layout-first rejects non-video drops with creator-facing feedback");
+assert.match(html, /Continue to production workspace/, "layout-first hands off into the production workspace when slots are filled");
+assert.ok(html.includes("updateContinueState"), "layout-first enables continue only when required video slots are filled");
 assert.ok(shell.includes("layout-first.html"), "preview shell links to the layout-first landing");
+
+const root = fs.readFileSync(path.join(__dirname, "..", "index.html"), "utf8");
+assert.ok(root.includes("preview/layout-first.html"), "root catalog leads with the layout-first landing");
 
 console.log("layout-first landing: layout picker and placement slots are wired");
