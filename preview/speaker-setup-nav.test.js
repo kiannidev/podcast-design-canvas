@@ -14,6 +14,7 @@ const navScript = fs.readFileSync(path.join(__dirname, "speaker-setup-nav.js"), 
 new vm.Script(navScript);
 assert.ok(navScript.includes('home.href = "../preview/"'), "speaker setup nav links back to the preview shell");
 assert.ok(navScript.includes("episode-flow.html"), "speaker setup nav links to the guided episode flow");
+assert.ok(navScript.includes("app.html"), "speaker setup nav links to the preview app");
 assert.ok(navScript.includes("preset-style-picker.html"), "speaker setup nav hands off to the visual direction path");
 assert.ok(navScript.includes("speaker-role-mapping.html"), "speaker setup nav links back to speaker roles");
 assert.ok(navScript.includes('document.querySelector(".speaker-setup-nav")'), "speaker setup nav guards against double render");
