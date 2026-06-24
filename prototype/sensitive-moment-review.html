@@ -83,6 +83,20 @@
       .consequence { border-left: 4px solid var(--review); border-radius: 6px; background: #fff; padding: 10px 12px; }
       .consequence.alert { border-left-color: var(--alert); }
       .consequence.ready { border-left-color: var(--accent); }
+      .consequence .fix-link {
+        display: inline-block;
+        margin-top: 8px;
+        color: var(--accent);
+        font-weight: 700;
+        font-size: 13px;
+        text-decoration: none;
+      }
+      .consequence .fix-link:hover,
+      .consequence .fix-link:focus-visible {
+        text-decoration: underline;
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+      }
       .summary { margin: 16px 0 0; padding-left: 18px; display: grid; gap: 8px; }
       @media (max-width: 920px) {
         .workspace { grid-template-columns: 1fr; }
@@ -226,7 +240,14 @@
             tone = "ready";
           }
 
-          return { state, message, tone };
+          const routing = state === "flagged" && moment.treatment === "flag"
+            ? {
+              fixScreen: "social-context-intake.html",
+              fixLabel: "social context intake",
+            }
+            : {};
+
+          return { state, message, tone, ...routing };
         });
 
         const open = results.filter((result) => result.state === "flagged").length;
@@ -355,6 +376,13 @@
             const message = document.createElement("span");
             message.textContent = result.message;
             article.append(title, message);
+            if (result.fixScreen && result.fixLabel) {
+              const openLink = document.createElement("a");
+              openLink.className = "fix-link";
+              openLink.href = result.fixScreen;
+              openLink.textContent = `Open ${result.fixLabel}`;
+              article.append(openLink);
+            }
             return article;
           }),
         );
