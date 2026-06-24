@@ -849,7 +849,7 @@
 
         for (const result of needsWork) {
           if (!result.proposedRepair || result.issue === "none") continue;
-          const repairLabel = repairs[result.proposedRepair];
+          const repairLabel = repairDisplayLabel(result.proposedRepair);
           if (!repairLabel) continue;
           const tag = document.createElement("span");
           tag.className = "rollup-repair-tag";
