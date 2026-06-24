@@ -174,6 +174,74 @@
         border-style: solid;
       }
 
+      .layout-toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        align-items: center;
+        margin-bottom: 14px;
+      }
+
+      .layout-slot-status {
+        margin: 0;
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      .layout-reset {
+        min-height: 34px;
+        border: 1px solid #bfd0ca;
+        border-radius: 8px;
+        background: #ffffff;
+        color: var(--accent);
+        font: inherit;
+        font-size: 13px;
+        font-weight: 700;
+        padding: 0 12px;
+        cursor: pointer;
+      }
+
+      .drop-zone.drag-over {
+        border-color: #ffffff;
+        background: rgba(255, 255, 255, 0.18);
+      }
+
+      .drop-zone.filled {
+        border-style: solid;
+        border-color: rgba(255, 255, 255, 0.92);
+        background: rgba(255, 255, 255, 0.16);
+      }
+
+      .placed-video {
+        position: relative;
+        z-index: 2;
+        display: grid;
+        gap: 6px;
+        margin-bottom: 8px;
+      }
+
+      .placed-video video {
+        width: 100%;
+        max-height: 96px;
+        border-radius: 8px;
+        background: #000000;
+        object-fit: cover;
+      }
+
+      .placed-video span {
+        display: inline-flex;
+        width: fit-content;
+        align-items: center;
+        min-height: 28px;
+        border-radius: 999px;
+        background: rgba(223, 245, 239, 0.96);
+        color: #075246;
+        font-size: 12px;
+        font-weight: 800;
+        padding: 0 10px;
+      }
+
       @media (max-width: 900px) {
         .speaker-row,
         .canvas-footer { grid-template-columns: 1fr; }
@@ -198,6 +266,10 @@
         </div>
 
         <h2 class="layout-picker-title">2. Place videos in the layout</h2>
+        <div class="layout-toolbar">
+          <p class="layout-slot-status" id="layout-slot-status" aria-live="polite">Drop a video file into each open slot.</p>
+          <button type="button" class="layout-reset" id="layout-reset">Reset videos</button>
+        </div>
         <div class="canvas-frame" id="layout-canvas" aria-label="Selected podcast layout with video placement slots">
           <span class="canvas-chip scene" id="layout-scene-label">Interview scene</span>
           <span class="canvas-chip runtime" id="layout-runtime-label">Host + guest</span>
@@ -260,6 +332,64 @@
         var speakerRow = document.getElementById("speaker-row");
         var guestSlot = document.getElementById("guest-slot");
         var guestBSlot = document.getElementById("guest-b-slot");
+        var slotStatus = document.getElementById("layout-slot-status");
+        var resetButton = document.getElementById("layout-reset");
+        var objectUrls = [];
+
+        function activeSlots() {
+          return Array.prototype.filter.call(
+            document.querySelectorAll(".drop-zone[data-slot]"),
+            function (zone) { return !zone.classList.contains("is-hidden"); },
+          );
+        }
+
+        function filledSlots() {
+          return activeSlots().filter(function (zone) { return zone.classList.contains("filled"); });
+        }
+
+        function updateSlotStatus(message) {
+          if (!slotStatus) return;
+          if (message) {
+            slotStatus.textContent = message;
+            return;
+          }
+          var total = activeSlots().length;
+          var filled = filledSlots().length;
+          if (filled === total) {
+            slotStatus.textContent = "All video slots filled for this layout.";
+            return;
+          }
+          slotStatus.textContent = filled + " of " + total + " video slots filled.";
+        }
+
+        function clearZone(zone) {
+          zone.classList.remove("filled");
+          var placed = zone.querySelector(".placed-video");
+          if (placed) placed.remove();
+        }
+
+        function placeVideoFile(zone, file) {
+          if (!file || !file.type.startsWith("video/")) {
+            updateSlotStatus("That file is not a video — drop an MP4, MOV, or WebM clip.");
+            return;
+          }
+          clearZone(zone);
+          zone.classList.add("filled");
+          var wrap = document.createElement("div");
+          wrap.className = "placed-video";
+          var video = document.createElement("video");
+          video.controls = true;
+          video.muted = true;
+          var url = URL.createObjectURL(file);
+          objectUrls.push(url);
+          video.src = url;
+          var label = document.createElement("span");
+          label.textContent = file.name;
+          wrap.appendChild(video);
+          wrap.appendChild(label);
+          zone.insertBefore(wrap, zone.firstChild);
+          updateSlotStatus();
+        }
 
         function applyLayout(name) {
           var layout = layouts[name];
@@ -270,6 +400,8 @@
           speakerRow.className = "speaker-row" + (layout.rowClass ? " " + layout.rowClass : "");
           guestSlot.classList.toggle("is-hidden", !layout.guestVisible);
           guestBSlot.classList.toggle("is-hidden", !layout.guestBVisible);
+          document.querySelectorAll(".drop-zone[data-slot]").forEach(clearZone);
+          updateSlotStatus("Drop a video file into each open slot.");
         }
 
         document.querySelectorAll(".layout-choice").forEach(function (button) {
@@ -281,6 +413,31 @@
             applyLayout(button.dataset.layout);
           });
         });
+
+        document.querySelectorAll(".drop-zone[data-slot]").forEach(function (zone) {
+          zone.addEventListener("dragover", function (event) {
+            event.preventDefault();
+            zone.classList.add("drag-over");
+          });
+          zone.addEventListener("dragleave", function () {
+            zone.classList.remove("drag-over");
+          });
+          zone.addEventListener("drop", function (event) {
+            event.preventDefault();
+            zone.classList.remove("drag-over");
+            var file = event.dataTransfer.files && event.dataTransfer.files[0];
+            placeVideoFile(zone, file);
+          });
+        });
+
+        if (resetButton) {
+          resetButton.addEventListener("click", function () {
+            objectUrls.forEach(function (url) { URL.revokeObjectURL(url); });
+            objectUrls = [];
+            document.querySelectorAll(".drop-zone[data-slot]").forEach(clearZone);
+            updateSlotStatus("Drop a video file into each open slot.");
+          });
+        }
 
         applyLayout("interview");
       }());
