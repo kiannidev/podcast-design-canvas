@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Podcast Design Canvas — Choose a layout</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #16211f;
+        --muted: #5e6b67;
+        --line: #d9e0dd;
+        --panel: #f7faf8;
+        --accent: #136f63;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      * { box-sizing: border-box; }
+      body { margin: 0; color: var(--ink); background: #ffffff; }
+      main { max-width: 1180px; margin: 0 auto; padding: 40px 20px 56px; }
+      h1 { margin: 0 0 8px; font-size: 32px; line-height: 1.1; }
+      .lede { margin: 0 0 24px; color: var(--muted); max-width: 760px; }
+      .back-link { margin: 0 0 20px; font-size: 13px; font-weight: 700; }
+      .back-link a { color: var(--accent); }
+
+      .layout-stage {
+        padding: 18px;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: linear-gradient(180deg, #f8fbfa, #eef5f2);
+      }
+
+      .layout-picker-title {
+        margin: 0 0 10px;
+        font-size: 22px;
+      }
+
+      .layout-picker-lede {
+        margin: 0 0 14px;
+        color: var(--muted);
+        max-width: 720px;
+      }
+
+      .layout-picker {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 20px;
+      }
+
+      .layout-choice {
+        min-height: 42px;
+        border: 1px solid #bfd0ca;
+        border-radius: 999px;
+        background: #ffffff;
+        color: var(--ink);
+        font: inherit;
+        font-size: 13px;
+        font-weight: 700;
+        padding: 0 14px;
+        cursor: pointer;
+      }
+
+      .layout-choice.is-selected {
+        border-color: var(--accent);
+        background: #dff5ef;
+        color: #075246;
+      }
+
+      .layout-choice:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+      }
+
+      .canvas-frame {
+        position: relative;
+        min-height: 420px;
+        padding: 18px;
+        border: 1px solid #bfd0ca;
+        border-radius: 18px;
+        background:
+          radial-gradient(circle at top left, rgba(19, 111, 99, 0.12), transparent 30%),
+          linear-gradient(135deg, #10312b, #1c5d53 52%, #6a6888);
+        overflow: hidden;
+      }
+
+      .canvas-chip {
+        position: absolute;
+        z-index: 3;
+        display: inline-flex;
+        align-items: center;
+        min-height: 30px;
+        border-radius: 999px;
+        background: rgba(246, 251, 249, 0.94);
+        color: var(--ink);
+        font-size: 12px;
+        font-weight: 800;
+        padding: 0 12px;
+      }
+
+      .canvas-chip.scene { top: 18px; left: 18px; }
+      .canvas-chip.runtime { top: 18px; right: 18px; }
+
+      .speaker-row {
+        position: absolute;
+        inset: 72px 18px 104px;
+        display: grid;
+        grid-template-columns: 1.15fr 0.95fr;
+        gap: 16px;
+      }
+
+      .speaker-row.is-solo { grid-template-columns: 1fr; }
+      .speaker-row.is-panel { grid-template-columns: 1fr 1fr 1fr; }
+
+      .drop-zone {
+        position: relative;
+        display: grid;
+        align-content: end;
+        min-height: 100%;
+        padding: 16px;
+        border: 2px dashed rgba(255, 255, 255, 0.72);
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.08);
+      }
+
+      .drop-zone.is-hidden { display: none; }
+
+      .slot-label {
+        position: relative;
+        z-index: 2;
+        display: inline-flex;
+        width: fit-content;
+        align-items: center;
+        min-height: 28px;
+        border-radius: 999px;
+        background: rgba(16, 24, 22, 0.76);
+        color: #ffffff;
+        font-size: 12px;
+        font-weight: 800;
+        padding: 0 10px;
+      }
+
+      .slot-note {
+        position: relative;
+        z-index: 2;
+        margin-top: 8px;
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 13px;
+        line-height: 1.4;
+      }
+
+      .canvas-footer {
+        position: absolute;
+        right: 18px;
+        bottom: 18px;
+        left: 18px;
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        gap: 14px;
+        align-items: end;
+      }
+
+      .caption-slot,
+      .title-slot {
+        min-height: 72px;
+        padding: 12px 14px;
+        border: 2px dashed rgba(255, 255, 255, 0.6);
+        border-radius: 14px;
+        background: rgba(16, 24, 22, 0.68);
+      }
+
+      .title-slot.drop-zone {
+        align-content: center;
+        border-style: solid;
+      }
+
+      @media (max-width: 900px) {
+        .speaker-row,
+        .canvas-footer { grid-template-columns: 1fr; }
+        .canvas-frame { min-height: 620px; }
+        .speaker-row { inset: 72px 18px 186px; }
+      }
+    </style>
+  </head>
+  <body>
+    <main aria-label="Layout-first podcast landing">
+      <p class="back-link"><a href="./index.html">← Preview shell</a></p>
+      <h1>Choose your podcast layout</h1>
+      <p class="lede">Pick a layout, then drag your video files into each slot. You stay in control of where host, guest, and visual moments land before opening the production workspace.</p>
+
+      <section class="layout-stage" aria-labelledby="layout-picker-title">
+        <h2 class="layout-picker-title" id="layout-picker-title">1. Select a layout</h2>
+        <p class="layout-picker-lede">Each layout keeps captions readable and reserves space for contextual visuals.</p>
+        <div class="layout-picker" role="group" aria-label="Podcast layout options">
+          <button type="button" class="layout-choice is-selected" data-layout="interview">Interview · host + guest</button>
+          <button type="button" class="layout-choice" data-layout="solo">Solo · one speaker</button>
+          <button type="button" class="layout-choice" data-layout="panel">Panel · host + two guests</button>
+        </div>
+
+        <h2 class="layout-picker-title">2. Place videos in the layout</h2>
+        <div class="canvas-frame" id="layout-canvas" aria-label="Selected podcast layout with video placement slots">
+          <span class="canvas-chip scene" id="layout-scene-label">Interview scene</span>
+          <span class="canvas-chip runtime" id="layout-runtime-label">Host + guest</span>
+          <div class="speaker-row" id="speaker-row">
+            <div class="drop-zone host" data-slot="host">
+              <span class="slot-label">Host video slot</span>
+              <span class="slot-note">Drop your host video file here.</span>
+            </div>
+            <div class="drop-zone guest" data-slot="guest" id="guest-slot">
+              <span class="slot-label">Guest video slot</span>
+              <span class="slot-note">Drop your guest video file here.</span>
+            </div>
+            <div class="drop-zone guest is-hidden" data-slot="guest-b" id="guest-b-slot">
+              <span class="slot-label">Guest 2 video slot</span>
+              <span class="slot-note">Drop your second guest video file here.</span>
+            </div>
+          </div>
+          <div class="canvas-footer">
+            <div class="caption-slot">
+              <span class="slot-label">Caption area</span>
+              <div class="slot-note">Captions stay readable below the conversation.</div>
+            </div>
+            <div class="title-slot drop-zone broll" data-slot="broll">
+              <span class="slot-label">B-roll drop zone</span>
+              <div class="slot-note">Drop a b-roll or title-card video clip here.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+    <script>
+      (function () {
+        var layouts = {
+          interview: {
+            scene: "Interview scene",
+            runtime: "Host + guest",
+            rowClass: "",
+            guestVisible: true,
+            guestBVisible: false,
+          },
+          solo: {
+            scene: "Solo episode",
+            runtime: "One speaker",
+            rowClass: "is-solo",
+            guestVisible: false,
+            guestBVisible: false,
+          },
+          panel: {
+            scene: "Panel discussion",
+            runtime: "Host + two guests",
+            rowClass: "is-panel",
+            guestVisible: true,
+            guestBVisible: true,
+          },
+        };
+
+        var currentLayout = "interview";
+        var sceneLabel = document.getElementById("layout-scene-label");
+        var runtimeLabel = document.getElementById("layout-runtime-label");
+        var speakerRow = document.getElementById("speaker-row");
+        var guestSlot = document.getElementById("guest-slot");
+        var guestBSlot = document.getElementById("guest-b-slot");
+
+        function applyLayout(name) {
+          var layout = layouts[name];
+          if (!layout) return;
+          currentLayout = name;
+          sceneLabel.textContent = layout.scene;
+          runtimeLabel.textContent = layout.runtime;
+          speakerRow.className = "speaker-row" + (layout.rowClass ? " " + layout.rowClass : "");
+          guestSlot.classList.toggle("is-hidden", !layout.guestVisible);
+          guestBSlot.classList.toggle("is-hidden", !layout.guestBVisible);
+        }
+
+        document.querySelectorAll(".layout-choice").forEach(function (button) {
+          button.addEventListener("click", function () {
+            document.querySelectorAll(".layout-choice").forEach(function (choice) {
+              choice.classList.remove("is-selected");
+            });
+            button.classList.add("is-selected");
+            applyLayout(button.dataset.layout);
+          });
+        });
+
+        applyLayout("interview");
+      }());
+    </script>
+  </body>
+</html>
