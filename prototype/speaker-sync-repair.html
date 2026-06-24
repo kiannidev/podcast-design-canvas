@@ -1241,7 +1241,7 @@
           wrap.appendChild(previewNow);
         }
         const focusNote = issues[track.issue]?.moment;
-        if (focusNote) {
+        if (typeof focusNote === "string" && focusNote.length) {
           const focusCopy = document.createElement("p");
           focusCopy.className = "compare-issue-note";
           focusCopy.textContent = `Focus on: ${focusNote}`;
