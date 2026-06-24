@@ -47,6 +47,8 @@ const publishFlow = new Set([
 const styleFlow = new Set([
   "preset-style-picker.html",
   "preset-comparison-preview.html",
+  "layout-safe-areas.html",
+  "speaker-framing-safety.html",
 ]);
 
 const prototypes = fs

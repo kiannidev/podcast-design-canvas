@@ -8,6 +8,8 @@
 const STYLE_FLOW = [
   { id: "preset-style-picker", file: "preset-style-picker.html", label: "Preset style picker" },
   { id: "preset-comparison-preview", file: "preset-comparison-preview.html", label: "Preset comparison" },
+  { id: "layout-safe-areas", file: "layout-safe-areas.html", label: "Layout safe areas" },
+  { id: "speaker-framing-safety", file: "speaker-framing-safety.html", label: "Speaker framing safety" },
 ];
 
 function currentStyleIndex() {
@@ -115,8 +117,8 @@ function renderStyleNav() {
     wrap.appendChild(nextLink);
   } else {
     const start = document.createElement("a");
-    start.href = "layout-safe-areas.html";
-    start.textContent = "Continue: Layout safe areas";
+    start.href = "source-media-health.html";
+    start.textContent = "Continue: Source media health";
     wrap.appendChild(start);
   }
 

@@ -14,12 +14,14 @@ const navScript = fs.readFileSync(path.join(__dirname, "style-nav.js"), "utf8");
 new vm.Script(navScript);
 assert.ok(navScript.includes('home.href = "../preview/"'), "style nav links back to the preview shell");
 assert.ok(navScript.includes("episode-flow.html"), "style nav links to the guided episode flow");
-assert.ok(navScript.includes("layout-safe-areas.html"), "style nav hands off to layout safe areas");
+assert.ok(navScript.includes("source-media-health.html"), "style nav hands off to source media health");
 assert.ok(!/innerHTML/.test(navScript), "style nav builds the DOM without innerHTML");
 
 const styleScreens = [
   "preset-style-picker.html",
   "preset-comparison-preview.html",
+  "layout-safe-areas.html",
+  "speaker-framing-safety.html",
 ];
 
 for (const file of styleScreens) {

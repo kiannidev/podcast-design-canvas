@@ -14,8 +14,6 @@ const TOOL_STAGE = {
   "speaker-visual-match.html": "Bring in the recording",
   "speaker-eye-line-coherence.html": "Bring in the recording",
   "guest-profile-reuse.html": "Bring in the recording",
-  "layout-safe-areas.html": "Choose a visual direction",
-  "speaker-framing-safety.html": "Choose a visual direction",
   "pause-crosstalk-cleanup.html": "Clean up audio & captions",
   "transcript-glossary.html": "Clean up audio & captions",
   "transcript-search-navigation.html": "Clean up audio & captions",
