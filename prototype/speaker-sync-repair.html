@@ -896,7 +896,7 @@
 
         for (const result of needsWork) {
           const effect = repairEffects[result.proposedRepair];
-          if (!effect) continue;
+          if (typeof effect !== "string" || !effect.length) continue;
           const tag = document.createElement("span");
           tag.className = "rollup-effect-tag";
           tag.textContent = `${trackBucketLabel(result.name)} — ${effect}`;
@@ -1191,6 +1191,7 @@
           track.proposedRepair,
         );
         const effect = repairEffects[track.proposedRepair];
+        const effectCopy = typeof effect === "string" && effect.length ? effect : null;
         const issue = issues[track.issue];
         const selectedMoment = previewMoments.find((entry) => entry.id === track.previewMoment);
         const momentLabel = selectedMoment?.label;
@@ -1204,7 +1205,7 @@
             track.proposedRepair
               ? `Preview after ${repairDisplayLabel(track.proposedRepair)?.toLowerCase() ?? "repair"} at ${momentLabel?.toLowerCase() ?? "this moment"}.`
               : "Choose a repair to preview the difference.",
-            effect ? [effect] : [],
+            effectCopy ? [effectCopy] : [],
             track,
           ),
         );
