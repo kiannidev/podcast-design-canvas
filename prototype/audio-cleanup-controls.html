@@ -537,11 +537,16 @@
         const bucket = bucketLabel(speaker);
         const active = choices.filter((entry) => enabled.has(entry.id));
         const primaryLabel = active[0]?.label?.toLowerCase();
-        if (!primaryLabel) return `Open ${bucket}`;
-        if (active.length === 1) {
-          return `Open ${bucket} · ${primaryLabel}`;
+        const momentLabel = previewMoments.find((entry) => entry.id === preview)?.label?.toLowerCase();
+
+        let label = `Open ${bucket}`;
+        if (primaryLabel) {
+          label += active.length === 1 ? ` · ${primaryLabel}` : ` · ${primaryLabel} + ${active.length - 1} more`;
         }
-        return `Open ${bucket} · ${primaryLabel} + ${active.length - 1} more`;
+        if (momentLabel) {
+          label += ` · ${momentLabel} preview`;
+        }
+        return label;
       }
 
       function buildSummary() {
