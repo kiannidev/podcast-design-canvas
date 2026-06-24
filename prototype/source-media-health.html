@@ -396,6 +396,24 @@
         background: #ffe0e0;
       }
 
+      .batch-role-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+
+      .batch-role-tags .batch-role-tag {
+        display: inline-flex;
+        align-items: center;
+        min-height: 26px;
+        border-radius: 999px;
+        padding: 0 10px;
+        font-size: 12px;
+        font-weight: 700;
+        color: #3f4d66;
+        background: #e8edf5;
+      }
+
       .batch-toolbar {
         display: flex;
         flex-wrap: wrap;
@@ -488,6 +506,7 @@
               <p id="batchDetail" class="batch-detail"></p>
             </div>
             <div class="batch-condition-tags" id="batchConditionTags" hidden></div>
+            <div class="batch-role-tags" id="batchRoleTags" hidden></div>
             <div class="batch-toolbar" id="batchToolbar"></div>
             <p class="batch-filter-note" id="batchFilterNote" hidden>Showing only files that need work; ready files stay hidden until you show all.</p>
             <div class="batch-links" id="batchLinks"></div>
@@ -622,6 +641,7 @@
       const batchToolbarElement = document.querySelector("#batchToolbar");
       const batchLinksElement = document.querySelector("#batchLinks");
       const batchConditionTagsElement = document.querySelector("#batchConditionTags");
+      const batchRoleTagsElement = document.querySelector("#batchRoleTags");
       const batchFilterNoteElement = document.querySelector("#batchFilterNote");
 
       document.querySelector("#addSpeaker").addEventListener("click", () => {
@@ -776,6 +796,30 @@
         }
       }
 
+      function renderBatchRoleTags(flagged) {
+        batchRoleTagsElement.replaceChildren();
+        batchRoleTagsElement.hidden = true;
+
+        for (const result of flagged) {
+          const role = typeof result.role === "string" && result.role.length ? result.role : null;
+          if (!role) continue;
+          const tag = document.createElement("span");
+          tag.className = "batch-role-tag";
+          tag.textContent = `${bucketLabel(result.name)} — ${role}`;
+          batchRoleTagsElement.appendChild(tag);
+        }
+
+        if (batchRoleTagsElement.childElementCount) {
+          batchRoleTagsElement.hidden = false;
+          batchRoleTagsElement.setAttribute(
+            "aria-label",
+            "Speaker roles for files needing work",
+          );
+        } else {
+          batchRoleTagsElement.removeAttribute("aria-label");
+        }
+      }
+
       function renderBatchSummary(batch, results) {
         const statusClass = batch.rollup === "action needed"
           ? "action"
@@ -813,6 +857,7 @@
 
         const flagged = results.filter((result) => batchCategory(result.state) !== "clear");
         renderBatchConditionTags(flagged);
+        renderBatchRoleTags(flagged);
         batchLinksElement.replaceChildren(
           ...(flagged.length
             ? flagged.map((result) => {
