@@ -576,10 +576,12 @@
         const clearCount = speakers.length - needsWork.length;
 
         if (needsWork.length) {
+          const momentLabel = previewMoments.find((entry) => entry.id === preview)?.label?.toLowerCase();
+          const previewNote = momentLabel ? ` · previewing ${momentLabel}` : "";
           return {
             statusClass: "attention",
             status: "Cleanup suggested",
-            detail: `${needsWork.length} track${needsWork.length === 1 ? "" : "s"} need cleanup review · ${clearCount} already clear`,
+            detail: `${needsWork.length} track${needsWork.length === 1 ? "" : "s"} need cleanup review · ${clearCount} already clear${previewNote}`,
             needsWork,
           };
         }
