@@ -16,7 +16,7 @@ new vm.Script(navSource);
 assert.ok(navSource.includes('home.href = "../preview/"'), "ingest nav links back to the preview shell");
 assert.ok(navSource.includes("episode-flow.html"), "ingest nav links to the guided episode flow");
 assert.ok(navSource.includes("app.html"), "ingest nav links to the preview app");
-assert.ok(navSource.includes('app.textContent = "Preview app"'), "ingest nav exposes a preview app link");
+assert.ok(navSource.includes("isEmbeddedInPreviewApp"), "ingest nav routes through the preview app when embedded");
 assert.ok(navSource.includes("source-media-health.html"), "ingest nav hands off to source media health");
 assert.ok(navSource.includes('document.querySelector(".ingest-nav")'), "ingest nav guards against double render");
 assert.ok(!/innerHTML/.test(navSource), "ingest nav builds the DOM without innerHTML");
@@ -55,6 +55,7 @@ function createElement(tagName) {
     className: "",
     href: "",
     id: "",
+    target: "",
     textContent: "",
     setAttribute(name, value) {
       this.attributes[name] = value;
@@ -81,7 +82,20 @@ function flatten(node) {
   return [node, ...node.children.flatMap(flatten)];
 }
 
-function renderNavFor(fileName, ingestStep, search = "") {
+function linkWithText(nodes, text) {
+  const link = nodes.find((node) => node.tagName === "a" && node.textContent === text);
+  assert.ok(link, `expected ingest nav link: ${text}`);
+  return link;
+}
+
+function makeWindow(fileName, search = "", embedded = false) {
+  const window = { location: { pathname: `/prototype/${fileName}`, search } };
+  window.self = window;
+  window.top = embedded ? { location: { pathname: "/preview/app.html" } } : window;
+  return window;
+}
+
+function renderNavFor(fileName, ingestStep, search = "", embedded = false) {
   const head = createElement("head");
   const body = createElement("body");
   if (ingestStep) {
@@ -108,11 +122,11 @@ function renderNavFor(fileName, ingestStep, search = "") {
 
   vm.runInNewContext(navSource, {
     document,
-    window: { location: { pathname: `/prototype/${fileName}`, search } },
+    window: makeWindow(fileName, search, embedded),
     URLSearchParams,
   });
 
-  return { head, body, nodes: [...flatten(head), ...flatten(body)] };
+  return { head, body, nodes: flatten(body) };
 }
 
 const firstNav = renderNavFor("episode-readiness.html", "episode-readiness");
@@ -169,6 +183,39 @@ assert.ok(
   "last ingest screen does not render a next link",
 );
 
+const embeddedFirstNav = renderNavFor("episode-readiness.html", "episode-readiness", "", true);
+const embeddedHome = linkWithText(embeddedFirstNav.nodes, "← Preview shell");
+assert.equal(embeddedHome.href, "../preview/", "embedded ingest nav keeps the shell-home href");
+assert.equal(embeddedHome.target, "_top", "embedded shell-home link targets the parent app");
+const embeddedNext = linkWithText(embeddedFirstNav.nodes, "Next: Speaker roles");
+assert.equal(
+  embeddedNext.href,
+  "../preview/app.html#speaker-role-mapping",
+  "embedded ingest nav routes next setup steps through the preview app hash",
+);
+assert.equal(embeddedNext.target, "_top", "embedded ingest next link targets the parent app");
+
+const embeddedMiddleNav = renderNavFor("speaker-role-mapping.html", "speaker-role-mapping", "?path=ingest", true);
+assert.equal(
+  linkWithText(embeddedMiddleNav.nodes, "Previous: Episode readiness").href,
+  "../preview/app.html#episode-readiness",
+  "embedded ingest nav routes previous setup steps through the preview app hash",
+);
+assert.equal(
+  linkWithText(embeddedMiddleNav.nodes, "Next: Social links").href,
+  "../preview/app.html#social-context-intake",
+  "embedded ingest nav routes middle next steps through the preview app hash",
+);
+
+const embeddedLastNav = renderNavFor("social-context-intake.html", "social-context-intake", "?path=ingest", true);
+const embeddedHandoff = linkWithText(embeddedLastNav.nodes, "Continue: Source media health");
+assert.equal(
+  embeddedHandoff.href,
+  "../preview/app.html#source-media-health",
+  "embedded ingest nav routes the source media health handoff through the preview app hash",
+);
+assert.equal(embeddedHandoff.target, "_top", "embedded ingest handoff targets the parent app");
+
 const duplicateNav = renderNavFor("speaker-role-mapping.html", "speaker-role-mapping");
 vm.runInNewContext(navSource, {
   document: {
@@ -185,7 +232,7 @@ vm.runInNewContext(navSource, {
       return duplicateNav.nodes.find((node) => node.className.split(" ").includes(className)) || null;
     },
   },
-  window: { location: { pathname: "/prototype/speaker-role-mapping.html" } },
+  window: makeWindow("speaker-role-mapping.html"),
   URLSearchParams,
 });
 assert.equal(

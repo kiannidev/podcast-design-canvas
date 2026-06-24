@@ -11,6 +11,59 @@ const INGEST_FLOW = [
   { id: "social-context-intake", file: "social-context-intake.html", label: "Social links" },
 ];
 
+const PREVIEW_APP_INGEST_TARGETS = new Set([
+  ...INGEST_FLOW.map((step) => step.id),
+  "source-media-health",
+]);
+
+function screenIdFromFile(file) {
+  const clean = (file || "").split("#")[0].split("?")[0];
+  const name = clean.split("/").pop() || "";
+  return name.replace(/\.html$/, "");
+}
+
+function isPreviewAppIngestTarget(file) {
+  return PREVIEW_APP_INGEST_TARGETS.has(screenIdFromFile(file));
+}
+
+function isEmbeddedInPreviewApp() {
+  try {
+    return window.self !== window.top && /\/preview\/app\.html$/.test(window.top.location.pathname);
+  } catch (_) {
+    return false;
+  }
+}
+
+function previewAppHref(file) {
+  return `../preview/app.html#${screenIdFromFile(file)}`;
+}
+
+function setTopTargetWhenEmbedded(link) {
+  if (isEmbeddedInPreviewApp()) {
+    link.target = "_top";
+  }
+}
+
+function setIngestScreenLink(link, file) {
+  if (isEmbeddedInPreviewApp() && isPreviewAppIngestTarget(file)) {
+    link.href = previewAppHref(file);
+    link.target = "_top";
+    return;
+  }
+
+  link.href = hrefWithPath(file);
+}
+
+function setIngestHandoffLink(link) {
+  if (isEmbeddedInPreviewApp()) {
+    link.href = previewAppHref("source-media-health.html");
+    link.target = "_top";
+    return;
+  }
+
+  link.href = shouldHandoffToEpisodePath() ? "source-media-health.html?path=episode" : "source-media-health.html";
+}
+
 function pathQuerySuffix() {
   const path = new URLSearchParams(window.location.search).get("path");
   if (path === "episode") {
@@ -128,34 +181,37 @@ function renderIngestNav() {
 
   const home = document.createElement("a");
   home.href = "../preview/";
+  setTopTargetWhenEmbedded(home);
   home.textContent = "← Preview shell";
   wrap.appendChild(home);
 
   const guided = document.createElement("a");
   guided.href = "../preview/episode-flow.html";
+  setTopTargetWhenEmbedded(guided);
   guided.textContent = "Guided episode flow";
   wrap.appendChild(guided);
 
   const app = document.createElement("a");
   app.href = "../preview/app.html";
+  setTopTargetWhenEmbedded(app);
   app.textContent = "Preview app";
   wrap.appendChild(app);
 
   if (previous) {
     const prevLink = document.createElement("a");
-    prevLink.href = hrefWithPath(previous.file);
+    setIngestScreenLink(prevLink, previous.file);
     prevLink.textContent = `Previous: ${previous.label}`;
     wrap.appendChild(prevLink);
   }
 
   if (next && !episodeHandoff) {
     const nextLink = document.createElement("a");
-    nextLink.href = hrefWithPath(next.file);
+    setIngestScreenLink(nextLink, next.file);
     nextLink.textContent = `Next: ${next.label}`;
     wrap.appendChild(nextLink);
   } else if (episodeHandoff || !next) {
     const start = document.createElement("a");
-    start.href = shouldHandoffToEpisodePath() ? "source-media-health.html?path=episode" : "source-media-health.html";
+    setIngestHandoffLink(start);
     start.textContent = "Continue: Source media health";
     wrap.appendChild(start);
   }
