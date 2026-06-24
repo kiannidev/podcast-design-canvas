@@ -62,4 +62,21 @@ for (const { script, href, text, note } of expectedHandoffs) {
   assert.ok(source.includes(text), `${script} exposes creator-facing handoff copy (${text})`);
 }
 
-console.log(`path handoff consistency: ${expectedHandoffs.length} cross-section handoffs verified`);
+const expectedEntryBacklinks = [
+  {
+    script: "cleanup-nav.js",
+    href: 'prep.href = "publish-checklist.html"',
+    text: "Previous: Publish checklist",
+    note: "cleanup helpers link back to publish prep",
+  },
+];
+
+for (const { script, href, text, note } of expectedEntryBacklinks) {
+  const source = fs.readFileSync(path.join(previewDir, script), "utf8");
+  assert.ok(source.includes(href), `${script} ${note} (${href})`);
+  assert.ok(source.includes(text), `${script} exposes creator-facing back-link copy (${text})`);
+}
+
+console.log(
+  `path handoff consistency: ${expectedHandoffs.length} cross-section handoffs and ${expectedEntryBacklinks.length} entry back-links verified`,
+);
