@@ -16,6 +16,7 @@ assert.ok(navScript.includes('home.href = "../preview/"'), "speaker setup nav li
 assert.ok(navScript.includes("episode-flow.html"), "speaker setup nav links to the guided episode flow");
 assert.ok(navScript.includes("source-media-health.html"), "speaker setup nav hands off to source media health");
 assert.ok(navScript.includes("speaker-role-mapping.html"), "speaker setup nav links back to speaker roles");
+assert.ok(navScript.includes('document.querySelector(".speaker-setup-nav")'), "speaker setup nav guards against double render");
 assert.ok(!/innerHTML/.test(navScript), "speaker setup nav builds the DOM without innerHTML");
 
 const setupScreens = [

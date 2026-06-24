@@ -67,6 +67,8 @@ assert.ok(shell.includes("speaker-framing-safety.html"), "shell links to speaker
 assert.ok(shell.includes("episode-watch-through-preview.html"), "shell links to watch-through in publish path");
 assert.ok(shell.includes("destination-crop-preview.html"), "shell links to destination crop in publish path");
 assert.ok(shell.includes("show-notes-assembly.html"), "shell links to show notes assembly in publish path");
+assert.ok(shell.includes("thumbnail-cover-frame.html"), "shell links to thumbnail frame in publish path");
+assert.ok(shell.includes("publish-checklist.html"), "shell links to publish checklist in publish path");
 assert.ok(shell.includes("export-package-handoff.html"), "shell links to export package handoff in publish path");
 assert.match(shell, /Clean up audio &amp; captions/, "shell documents the cleanup helper path");
 assert.ok(
