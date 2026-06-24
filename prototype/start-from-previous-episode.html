@@ -109,6 +109,20 @@
       .issue { border-left: 4px solid var(--warn); border-radius: 6px; }
       .issue.ready { border-left-color: var(--accent); }
       .issue.route { border-left-color: var(--info); }
+      .issue .fix-link {
+        display: inline-block;
+        margin-top: 8px;
+        color: var(--accent);
+        font-weight: 700;
+        font-size: 13px;
+        text-decoration: none;
+      }
+      .issue .fix-link:hover,
+      .issue .fix-link:focus-visible {
+        text-decoration: underline;
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+      }
 
       @media (max-width: 920px) {
         .workspace, .row { grid-template-columns: 1fr; }
@@ -422,7 +436,16 @@
           issues.push(["ready", "Previous episode stays finished", "Editing this draft does not change the exported episode it started from."]);
         }
         if (role) {
-          issues.push(["route", "Ingest still needs confirmation", role]);
+          const routeIssue = {
+            tone: "route",
+            title: "Ingest still needs confirmation",
+            detail: role,
+          };
+          if (role === "Confirm the new speaker roles before styling.") {
+            routeIssue.fixScreen = "speaker-role-mapping.html?path=ingest";
+            routeIssue.fixLabel = "speaker role mapping";
+          }
+          issues.push(routeIssue);
         } else {
           issues.push(["ready", "Ready for preset styling", "New recordings are mapped to the carried-forward speaker buckets."]);
         }
@@ -431,10 +454,23 @@
         }
 
         issuesElement.replaceChildren(
-          ...issues.map(([tone, title, detail]) => {
+          ...issues.map((issue) => {
             const item = document.createElement("article");
-            item.className = `issue ${tone}`;
-            item.append(createText("strong", title), createText("span", detail));
+            if (Array.isArray(issue)) {
+              const [tone, title, detail] = issue;
+              item.className = `issue ${tone}`;
+              item.append(createText("strong", title), createText("span", detail));
+              return item;
+            }
+            item.className = `issue ${issue.tone}`;
+            item.append(createText("strong", issue.title), createText("span", issue.detail));
+            if (issue.fixScreen) {
+              const openLink = document.createElement("a");
+              openLink.className = "fix-link";
+              openLink.href = issue.fixScreen;
+              openLink.textContent = `Open ${issue.fixLabel} →`;
+              item.append(openLink);
+            }
             return item;
           }),
         );
