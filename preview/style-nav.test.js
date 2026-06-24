@@ -226,4 +226,11 @@ assert.ok(
   "style nav adds no path suffix when there is no path context",
 );
 
+const handoffPathNav = renderNavFor("canvas-layer-controls.html", "canvas-layer-controls", false, "?path=episode");
+assert.equal(
+  linkWithText(handoffPathNav.nodes, "Continue: Contextual b-roll moments").href,
+  "contextual-broll-moments.html?from=style&path=episode",
+  "style nav merges episode path context onto the contextual visuals handoff without breaking from=style",
+);
+
 console.log("style nav: visual direction screens connected back to the preview shell");

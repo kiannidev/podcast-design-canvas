@@ -67,6 +67,13 @@ assertCanonicalPathMerge(
   "show-segment-system.html?path=reuse&draft=segments",
 );
 
+assertCanonicalPathMerge(
+  "style-nav.js",
+  "?path=style",
+  "preset-style-picker.html?path=episode&draft=preset",
+  "preset-style-picker.html?path=style&draft=preset",
+);
+
 const ingestSource = fs.readFileSync(path.join(previewDir, "ingest-nav.js"), "utf8");
 function ingestHrefWithPathFor(file, search) {
   const window = { location: { pathname: "/prototype/episode-readiness.html", search } };
@@ -139,4 +146,29 @@ assert.equal(
   "reuse nav preserves unrelated flags and hash segments when merging path context",
 );
 
-console.log("nav query merge: ingest, publish, speaker setup, and reuse path merges are canonical and non-ambiguous");
+const styleSource = fs.readFileSync(path.join(previewDir, "style-nav.js"), "utf8");
+function styleHrefWithPathFor(file, search) {
+  const window = { location: { pathname: "/prototype/layout-safe-areas.html", search } };
+  const sandbox = {
+    document: { readyState: "loading", addEventListener() {} },
+    window,
+    URLSearchParams,
+  };
+  vm.runInNewContext(
+    `${styleSource}\nglobalThis.result = hrefWithPath(${JSON.stringify(file)});`,
+    sandbox,
+  );
+  return sandbox.result;
+}
+
+const styleWithHash = styleHrefWithPathFor(
+  "contextual-broll-moments.html?from=style#moment",
+  "?path=episode",
+);
+assert.equal(
+  styleWithHash,
+  "contextual-broll-moments.html?from=style&path=episode#moment",
+  "style nav preserves from=style and hash segments when merging path context",
+);
+
+console.log("nav query merge: ingest, publish, speaker setup, reuse, and style path merges are canonical and non-ambiguous");
