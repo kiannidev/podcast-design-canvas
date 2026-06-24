@@ -205,6 +205,35 @@
         .compare { grid-template-columns: 1fr; }
       }
 
+      .speaker-compare {
+        display: grid;
+        gap: 12px;
+        margin-bottom: 18px;
+      }
+
+      .speaker-row {
+        display: grid;
+        grid-template-columns: 92px 1fr 1fr;
+        gap: 10px;
+        align-items: start;
+      }
+
+      .speaker-row-name {
+        font-size: 13px;
+        font-weight: 700;
+        padding-top: 12px;
+      }
+
+      @media (max-width: 720px) {
+        .speaker-row {
+          grid-template-columns: 1fr;
+        }
+
+        .speaker-row-name {
+          padding-top: 0;
+        }
+      }
+
       button {
         min-height: 38px;
         border: 1px solid #b9c8c3;
@@ -267,6 +296,9 @@
           <h2>Compare on this moment</h2>
           <div class="compare" id="compare" aria-live="polite"></div>
 
+          <h2>Compare per speaker on this moment</h2>
+          <div class="speaker-compare" id="speaker-compare" aria-live="polite"></div>
+
           <h2>Speaker balance</h2>
           <div class="speakers" id="speakers"></div>
         </div>
@@ -306,6 +338,48 @@
         "caption-line": [26, 32, 38, 42, 36, 40, 34, 38, 32, 28],
       };
 
+      const speakerProfiles = {
+        "quiet-guest": {
+          host: [34, 38, 42, 40, 36, 44, 46, 44, 38, 36],
+          guest: [18, 22, 24, 22, 20, 26, 28, 26, 22, 20],
+        },
+        exchange: {
+          host: [52, 56, 50, 58, 54, 52, 50, 56, 52, 50],
+          guest: [28, 32, 30, 34, 28, 30, 32, 28, 30, 32],
+        },
+        "noisy-room": {
+          host: [46, 50, 44, 48, 52, 47, 51, 45, 49, 53],
+          guest: [50, 54, 48, 52, 56, 51, 55, 49, 53, 57],
+        },
+        peak: {
+          host: [32, 36, 72, 76, 38, 34, 68, 74, 36, 32],
+          guest: [28, 32, 84, 88, 34, 30, 80, 86, 32, 28],
+        },
+        "caption-line": {
+          host: [28, 34, 40, 44, 38, 42, 36, 40, 34, 30],
+          guest: [24, 30, 36, 40, 34, 38, 32, 36, 30, 26],
+        },
+      };
+
+      const speakerEffects = {
+        host: {
+          noise: "Host room noise softens",
+          balance: "Host level settles toward guest",
+          quiet: null,
+          echo: "Host room tail softens",
+          peaks: "Host peaks smooth out",
+          clarity: "Host speech sharpens for captions",
+        },
+        guest: {
+          noise: "Guest room noise softens",
+          balance: "Guest level rises toward host",
+          quiet: "Soft guest lines lift without raising room noise",
+          echo: "Guest room tail softens",
+          peaks: "Guest peaks smooth out",
+          clarity: "Guest speech sharpens for captions",
+        },
+      };
+
       const sampleSpeakers = [
         { name: "Host — Dana Brooks", state: "not needed" },
         { name: "Guest 1 — Marcus Lee", state: "suggested" },
@@ -319,6 +393,7 @@
       const controlsElement = document.querySelector("#controls");
       const momentsElement = document.querySelector("#moments");
       const compareElement = document.querySelector("#compare");
+      const speakerCompareElement = document.querySelector("#speaker-compare");
       const speakersElement = document.querySelector("#speakers");
       const statusElement = document.querySelector("#status");
       const summaryElement = document.querySelector("#summary");
@@ -336,6 +411,7 @@
         controlsElement.replaceChildren(...choices.map(renderChoice));
         momentsElement.replaceChildren(...previewMoments.map(renderMoment));
         renderCompare();
+        renderSpeakerCompare();
         speakersElement.replaceChildren(...speakers.map(renderSpeaker));
 
         const hasSuggested = speakers.some((speaker) => speaker.state === "suggested");
@@ -389,6 +465,46 @@
           (bars, choice) => (enabled.has(choice.id) ? applyChoice(bars, choice.id, preview) : bars),
           [...original],
         );
+      }
+
+      function buildSpeakerPreview(role) {
+        const profile = speakerProfiles[preview][role];
+        return choices.reduce(
+          (bars, choice) => (enabled.has(choice.id) ? applyChoiceForSpeaker(bars, choice.id, preview, role) : bars),
+          [...profile],
+        );
+      }
+
+      function applyChoiceForSpeaker(bars, choiceId, momentId, role) {
+        if (choiceId === "quiet" && role === "host") {
+          return bars;
+        }
+
+        if (choiceId === "balance") {
+          const otherRole = role === "host" ? "guest" : "host";
+          const otherBars = speakerProfiles[momentId][otherRole];
+          const average = [...bars, ...otherBars].reduce((sum, height) => sum + height, 0) / (bars.length + otherBars.length);
+          const strength = role === "guest" ? 0.55 : 0.4;
+          return bars.map((height) => Math.round(average + (height - average) * strength));
+        }
+
+        if (choiceId === "quiet" && role === "guest") {
+          return applyChoice(bars, choiceId, momentId);
+        }
+
+        if (choiceId === "noise" && momentId === "noisy-room") {
+          const strength = role === "guest" ? 0.58 : 0.68;
+          return bars.map((height) => Math.round(height * strength + 10));
+        }
+
+        return applyChoice(bars, choiceId, momentId);
+      }
+
+      function activeSpeakerEffects(role) {
+        return choices
+          .filter((choice) => enabled.has(choice.id))
+          .map((choice) => speakerEffects[role][choice.id])
+          .filter(Boolean);
       }
 
       function activeEffects() {
@@ -447,6 +563,46 @@
         }
 
         return card;
+      }
+
+      function renderSpeakerCompare() {
+        const moment = previewMoments.find((entry) => entry.id === preview);
+        speakerCompareElement.replaceChildren(
+          renderSpeakerRow("Host", "host", moment),
+          renderSpeakerRow("Guest", "guest", moment),
+        );
+      }
+
+      function renderSpeakerRow(label, role, moment) {
+        const row = document.createElement("div");
+        row.className = "speaker-row";
+        const name = document.createElement("div");
+        name.className = "speaker-row-name";
+        name.textContent = label;
+
+        const original = speakerProfiles[preview][role];
+        const cleaned = enabled.size ? buildSpeakerPreview(role) : original;
+        const note = enabled.size
+          ? role === "guest" && enabled.has("quiet")
+            ? moment.note
+            : role === "host" && enabled.has("balance")
+              ? "Host stays natural while guest comes forward."
+              : "How this speaker sounds on the selected moment."
+          : "Turn on a cleanup choice to preview this speaker.";
+
+        row.append(
+          name,
+          renderPreviewCard("Original", original, false, "Current track level."),
+          renderPreviewCard(
+            "With cleanup",
+            cleaned,
+            true,
+            note,
+            activeSpeakerEffects(role),
+          ),
+        );
+
+        return row;
       }
 
       function renderChoice(choice) {
