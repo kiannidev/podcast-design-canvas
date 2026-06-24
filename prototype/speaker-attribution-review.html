@@ -583,7 +583,8 @@
             issue = {
               tone: "blocker",
               title: "Caption needs a speaker",
-              action: "Assign this line to a speaker bucket before captions can be marked ready.",
+              action: "Open speaker role mapping to assign this line to a speaker bucket before captions can be marked ready.",
+              fixSurface: "speaker-role-mapping",
             };
           } else if (moment.suggestedSpeaker && moment.assignedSpeaker !== moment.suggestedSpeaker && moment.decision !== "confirm") {
             state = "speaker mismatch";
