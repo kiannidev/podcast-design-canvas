@@ -150,7 +150,7 @@
         margin-bottom: 8px;
       }
 
-      .preview-card span {
+      .preview-card .preview-note {
         display: block;
         color: var(--muted);
         font-size: 12px;
@@ -189,7 +189,7 @@
         margin-top: 8px;
       }
 
-      .effect-tag {
+      .effect-tags .effect-tag {
         display: inline-flex;
         align-items: center;
         min-height: 24px;
@@ -427,7 +427,8 @@
         const wave = document.createElement("div");
         wave.className = `wave ${cleaned ? "cleaned" : ""}`;
         wave.innerHTML = waveMarkup(heights, cleaned);
-        const copy = document.createElement("span");
+        const copy = document.createElement("p");
+        copy.className = "preview-note";
         copy.textContent = note;
 
         card.append(heading, wave, copy);
