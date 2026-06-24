@@ -403,6 +403,42 @@
         margin-top: 14px;
       }
 
+      .apply-scope {
+        color: var(--muted);
+        font-size: 13px;
+        margin: 12px 0 0;
+        padding: 12px;
+        border: 1px dashed var(--line);
+        border-radius: 8px;
+        background: #ffffff;
+      }
+
+      .apply-scope strong {
+        display: block;
+        color: var(--ink);
+        font-size: 13px;
+        margin-bottom: 6px;
+      }
+
+      .apply-scope-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 8px;
+      }
+
+      .apply-scope-tags .apply-scope-tag {
+        display: inline-flex;
+        align-items: center;
+        min-height: 24px;
+        border-radius: 999px;
+        padding: 0 9px;
+        font-size: 11px;
+        font-weight: 700;
+        color: #7a4400;
+        background: #fff1d6;
+      }
+
       .speaker-actions {
         display: flex;
         flex-wrap: wrap;
@@ -454,6 +490,7 @@
           <h2>Cleanup summary</h2>
           <div id="status" class="status">Sounds ready</div>
           <p class="note" id="summary"></p>
+          <div class="apply-scope" id="apply-scope" aria-live="polite"></div>
           <button type="button" class="primary" id="apply" style="margin-top: 14px;">Apply to episode</button>
         </aside>
       </section>
@@ -504,6 +541,7 @@
       const rollupElement = document.querySelector("#cleanupRollup");
       const statusElement = document.querySelector("#status");
       const summaryElement = document.querySelector("#summary");
+      const applyScopeElement = document.querySelector("#apply-scope");
       const momentHintElement = document.querySelector("#moment-hint");
       const previewNowElement = document.querySelector("#preview-now");
       const previewTradeoffElement = document.querySelector("#preview-tradeoff");
@@ -546,6 +584,50 @@
           ? "Cleanup suggested"
           : "Sounds ready";
         summaryElement.textContent = buildSummary();
+        renderApplyScope();
+      }
+
+      function speakersNeedingApply() {
+        return speakers.filter((speaker) => speaker.state === "suggested");
+      }
+
+      function renderApplyScope() {
+        applyScopeElement.replaceChildren();
+        const targets = speakersNeedingApply();
+        const active = choices.filter((choice) => enabled.has(choice.id));
+
+        if (!targets.length) {
+          applyScopeElement.hidden = true;
+          return;
+        }
+
+        applyScopeElement.hidden = false;
+
+        const lead = document.createElement("strong");
+        lead.textContent = "Apply would update these speaker buckets:";
+
+        const detail = document.createElement("p");
+        detail.className = "note";
+        detail.style.marginTop = "0";
+        const previewLabel = previewMoments.find((moment) => moment.id === preview)?.label?.toLowerCase();
+        const choicePhrase = active.length
+          ? `${active.length} active cleanup choice${active.length === 1 ? "" : "s"}`
+          : "no cleanup choices yet";
+        const previewPhrase = previewLabel ? ` after previewing ${previewLabel}` : "";
+        detail.textContent = `${choicePhrase}${previewPhrase}. Suggested tracks move to applied; others stay as they are.`;
+
+        const tags = document.createElement("div");
+        tags.className = "apply-scope-tags";
+        tags.setAttribute("aria-label", "Speaker buckets that would receive cleanup on apply");
+
+        for (const speaker of targets) {
+          const tag = document.createElement("span");
+          tag.className = "apply-scope-tag";
+          tag.textContent = bucketLabel(speaker);
+          tags.appendChild(tag);
+        }
+
+        applyScopeElement.append(lead, detail, tags);
       }
 
       function bucketLabel(speaker) {
