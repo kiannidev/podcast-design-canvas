@@ -33,8 +33,6 @@ const TOOL_STAGE = {
   "start-from-previous-episode.html": "Make it reusable",
   "episode-chapter-markers.html": "Make it reusable",
   "episode-watch-through-preview.html": "Review & publish",
-  "export-package-handoff.html": "Review & publish",
-  "publish-checklist.html": "Review & publish",
   "destination-crop-preview.html": "Review & publish",
   "thumbnail-cover-frame.html": "Review & publish",
   "show-notes-assembly.html": "Review & publish",
