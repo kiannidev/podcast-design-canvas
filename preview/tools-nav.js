@@ -74,6 +74,11 @@ function renderToolsNav() {
   home.textContent = "← Back to preview";
   wrap.appendChild(home);
 
+  const guided = document.createElement("a");
+  guided.href = "../preview/episode-flow.html";
+  guided.textContent = "Guided episode flow";
+  wrap.appendChild(guided);
+
   const role = document.createElement("span");
   role.className = "role";
   role.textContent = "Secondary tool";
