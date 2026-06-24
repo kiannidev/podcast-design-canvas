@@ -67,3 +67,16 @@ A creator can go from raw synced podcast tracks and a few social links to a fini
 - Run or preserve `lint` before submitting product work.
 - Run or preserve `test` before submitting product work.
 - Run or preserve `preview-build` before submitting product work.
+
+## Local preview
+From the repo root:
+
+```bash
+python3 -m http.server 8080
+```
+
+Open [http://localhost:8080/preview/](http://localhost:8080/preview/) to walk the core episode flow. Verify the shell with:
+
+```bash
+node preview/preview.test.js
+```
