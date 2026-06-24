@@ -495,7 +495,12 @@
                   fixScreen: "client-review-copy-flow.html",
                   fixLabel: "review copy flow",
                 }
-                : {}),
+                : row.check === "face-area"
+                  ? {
+                    fixScreen: "speaker-framing-safety.html",
+                    fixLabel: "speaker framing safety",
+                  }
+                  : {}),
             };
           }
 
