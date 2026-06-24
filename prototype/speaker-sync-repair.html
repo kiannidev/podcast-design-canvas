@@ -836,11 +836,20 @@
         const bucket = trackBucketLabel(result.name);
         const issueLabel = issues[result.issue]?.label;
         const repairLabel = repairDisplayLabel(result.proposedRepair);
+        const moment = rollupPreviewMoment(result);
+        const momentLabel = moment?.label?.toLowerCase();
+
+        let label = `Open ${bucket}`;
         if (issueLabel && repairLabel) {
-          return `Open ${bucket} · ${issueLabel} → ${repairLabel}`;
+          label += ` · ${issueLabel} → ${repairLabel}`;
+        } else {
+          const detail = issueLabel || repairLabel;
+          if (detail) label += ` · ${detail}`;
         }
-        const detail = issueLabel || repairLabel;
-        return detail ? `Open ${bucket} · ${detail}` : `Open ${bucket}`;
+        if (momentLabel) {
+          label += ` · ${momentLabel} preview`;
+        }
+        return label;
       }
 
       function renderRollupIssueTags(needsWork) {
