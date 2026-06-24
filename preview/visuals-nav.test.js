@@ -275,4 +275,30 @@ assert.equal(
 );
 assert.equal(embeddedHandoff.target, "_top", "embedded visuals handoff targets the parent app");
 
+const episodePathNav = renderNavFor("contextual-title-cards.html", "contextual-title-cards", false, "?path=episode&from=style");
+assert.equal(
+  linkWithText(episodePathNav, "Previous: Contextual b-roll moments").href,
+  "contextual-broll-moments.html?from=style&path=episode",
+  "visuals nav keeps style context and episode path on previous links",
+);
+assert.equal(
+  linkWithText(episodePathNav, "Next: Screen share moment review").href,
+  "screen-share-moment-review.html?from=style&path=episode",
+  "visuals nav keeps style context and episode path on next links",
+);
+
+const episodePathHandoff = renderNavFor("sensitive-moment-review.html", "sensitive-moment-review", false, "?path=episode&from=style");
+assert.equal(
+  linkWithText(episodePathHandoff, "Continue: Show segment system").href,
+  "show-segment-system.html?path=episode",
+  "visuals nav merges episode path context onto the reuse handoff",
+);
+
+const cleanupPathBacklink = renderNavFor("contextual-broll-moments.html", "contextual-broll-moments", false, "?path=episode");
+assert.equal(
+  linkWithText(cleanupPathBacklink, "Previous: On-screen correction note").href,
+  "on-screen-correction-note.html?from=cleanup&path=episode",
+  "visuals nav merges episode path context onto cleanup entry backlinks",
+);
+
 console.log("visuals nav: contextual-visuals screens connected into one path");

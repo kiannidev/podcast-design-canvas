@@ -74,6 +74,13 @@ assertCanonicalPathMerge(
   "preset-style-picker.html?path=style&draft=preset",
 );
 
+assertCanonicalPathMerge(
+  "visuals-nav.js",
+  "?path=episode",
+  "show-segment-system.html?path=reuse&draft=segments",
+  "show-segment-system.html?path=episode&draft=segments",
+);
+
 const ingestSource = fs.readFileSync(path.join(previewDir, "ingest-nav.js"), "utf8");
 function ingestHrefWithPathFor(file, search) {
   const window = { location: { pathname: "/prototype/episode-readiness.html", search } };
@@ -171,4 +178,29 @@ assert.equal(
   "style nav preserves from=style and hash segments when merging path context",
 );
 
-console.log("nav query merge: ingest, publish, speaker setup, reuse, and style path merges are canonical and non-ambiguous");
+const visualsSource = fs.readFileSync(path.join(previewDir, "visuals-nav.js"), "utf8");
+function visualsHrefWithPathFor(file, search) {
+  const window = { location: { pathname: "/prototype/sensitive-moment-review.html", search } };
+  const sandbox = {
+    document: { readyState: "loading", addEventListener() {} },
+    window,
+    URLSearchParams,
+  };
+  vm.runInNewContext(
+    `${visualsSource}\nglobalThis.result = hrefWithPath(${JSON.stringify(file)});`,
+    sandbox,
+  );
+  return sandbox.result;
+}
+
+const visualsWithHash = visualsHrefWithPathFor(
+  "on-screen-correction-note.html?from=cleanup#note",
+  "?path=episode",
+);
+assert.equal(
+  visualsWithHash,
+  "on-screen-correction-note.html?from=cleanup&path=episode#note",
+  "visuals nav preserves from=cleanup and hash segments when merging path context",
+);
+
+console.log("nav query merge: ingest, publish, speaker setup, reuse, style, and visuals path merges are canonical and non-ambiguous");

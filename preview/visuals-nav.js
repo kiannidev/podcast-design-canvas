@@ -60,20 +60,82 @@ function previewAppHref(file) {
   return `../preview/app.html#${screenIdFromFile(file)}${routeSearchFromFile(file)}`;
 }
 
+function pathFromQuery(query) {
+  return new URLSearchParams((query || "").replace(/^\?/, "")).get("path") || "";
+}
+
+function queryWithoutHash(file) {
+  return ((file || "").split("#")[0].split("?")[1] || "");
+}
+
+function mergeRouteSearch(file, overrides = {}) {
+  const raw = file || "";
+  const hashIndex = raw.indexOf("#");
+  const pathPart = hashIndex === -1 ? raw : raw.slice(0, hashIndex);
+  const hash = hashIndex === -1 ? "" : raw.slice(hashIndex);
+  const qIndex = pathPart.indexOf("?");
+  const base = qIndex === -1 ? pathPart : pathPart.slice(0, qIndex);
+  const params = new URLSearchParams(qIndex === -1 ? "" : pathPart.slice(qIndex + 1));
+
+  for (const [key, value] of Object.entries(overrides)) {
+    if (value === null || value === undefined) {
+      params.delete(key);
+    } else {
+      params.set(key, value);
+    }
+  }
+
+  const search = params.toString();
+  return `${base}${search ? `?${search}` : ""}${hash}`;
+}
+
+function pathQuerySuffix() {
+  const path = new URLSearchParams(window.location.search).get("path");
+  if (path === "episode" || path === "reuse") {
+    return `?path=${path}`;
+  }
+  return "";
+}
+
+function routeSearchFromFile(file) {
+  const params = new URLSearchParams(queryWithoutHash(file));
+  const from = params.get("from");
+  const filePath = params.get("path");
+  const shellPath = pathFromQuery(pathQuerySuffix().replace(/^\?/, ""));
+  const path = filePath || shellPath;
+
+  const out = new URLSearchParams();
+  if (from === "style" || from === "cleanup") {
+    out.set("from", from);
+  }
+  if (path === "episode" || path === "reuse") {
+    out.set("path", path);
+  }
+  const search = out.toString();
+  return search ? `?${search}` : "";
+}
+
 function currentPreviewAppHref(step) {
   return previewAppHref(withVisualsContext(step.file));
 }
 
-function routeSearchFromFile(file) {
-  const query = ((file || "").split("#")[0].split("?")[1] || "");
-  const from = new URLSearchParams(query).get("from");
-  if (from === "style") {
-    return "?from=style";
+function hrefWithPath(file) {
+  const shellPath = new URLSearchParams(window.location.search).get("path");
+  if (shellPath !== "episode" && shellPath !== "reuse") {
+    return file;
   }
-  if (from === "cleanup") {
-    return "?from=cleanup";
+  if (pathFromQuery(queryWithoutHash(file)) === shellPath) {
+    return file;
   }
-  return "";
+  return mergeRouteSearch(file, { path: shellPath });
+}
+
+function resolveVisualsLink(file) {
+  const base = screenIdFromFile(file);
+  if (VISUALS_SCREEN_IDS.has(base)) {
+    return withVisualsContext((file || "").split("?")[0].split("#")[0]);
+  }
+  return hrefWithPath(file);
 }
 
 function setTopTargetWhenEmbedded(link) {
@@ -83,13 +145,14 @@ function setTopTargetWhenEmbedded(link) {
 }
 
 function setVisualsScreenLink(link, file) {
-  if (isEmbeddedInPreviewApp() && isPreviewAppVisualsTarget(file)) {
-    link.href = previewAppHref(file);
+  const resolved = resolveVisualsLink(file);
+  if (isEmbeddedInPreviewApp() && isPreviewAppVisualsTarget(resolved)) {
+    link.href = previewAppHref(resolved);
     link.target = "_top";
     return;
   }
 
-  link.href = file;
+  link.href = resolved;
 }
 
 function visualsEntryContext() {
@@ -108,11 +171,17 @@ function entryBacklink() {
 }
 
 function withVisualsContext(file) {
+  const base = (file || "").split("?")[0].split("#")[0];
   const context = visualsEntryContext();
-  if (!VISUALS_SCREEN_IDS.has(screenIdFromFile(file))) {
-    return file;
+  const shellPath = new URLSearchParams(window.location.search).get("path");
+  const overrides = { from: context };
+  if (
+    (shellPath === "episode" || shellPath === "reuse") &&
+    pathFromQuery(queryWithoutHash(base)) !== shellPath
+  ) {
+    overrides.path = shellPath;
   }
-  return `${file}?from=${context}`;
+  return mergeRouteSearch(base, overrides);
 }
 
 function renderVisualsNav() {
@@ -211,8 +280,7 @@ function renderVisualsNav() {
 
   if (previous) {
     const prevLink = document.createElement("a");
-    const previousFile = withVisualsContext(previous.file);
-    setVisualsScreenLink(prevLink, previousFile);
+    setVisualsScreenLink(prevLink, previous.file);
     prevLink.textContent = `Previous: ${previous.label}`;
     wrap.appendChild(prevLink);
   } else {
@@ -225,8 +293,7 @@ function renderVisualsNav() {
 
   if (next) {
     const nextLink = document.createElement("a");
-    const nextFile = withVisualsContext(next.file);
-    setVisualsScreenLink(nextLink, nextFile);
+    setVisualsScreenLink(nextLink, next.file);
     nextLink.textContent = `Next: ${next.label}`;
     wrap.appendChild(nextLink);
   } else {
