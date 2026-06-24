@@ -389,6 +389,8 @@
               title: `${name}: ${changes[guest.change].toLowerCase()}`,
               action: "Something changed since last time. Update the profile or apply the change to this episode only.",
               tone: "review",
+              fixScreen: "social-context-intake.html",
+              fixLabel: "social context intake",
             };
           } else if (guest.decision === "update") {
             state = "reused";

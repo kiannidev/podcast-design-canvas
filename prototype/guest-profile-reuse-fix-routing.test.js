@@ -1,7 +1,7 @@
 "use strict";
 
-// Guards guest profile reuse hand-off links (#583): possible-match reviews open
-// the connected screen that owns speaker identity context.
+// Guards guest profile reuse hand-off links (#583): possible-match and profile-change
+// reviews open the connected screen that owns speaker identity context.
 // Run with: `node prototype/guest-profile-reuse-fix-routing.test.js`
 
 const fs = require("fs");
@@ -24,11 +24,15 @@ assert.ok(
 
 assert.ok(
   html.includes('fixScreen: "social-context-intake.html"'),
-  "possible-match guest review routes to social context intake",
+  "guest profile reviews route to social context intake",
 );
 assert.ok(
   html.includes('fixLabel: "social context intake"'),
-  "possible-match guest review names the fix screen in creator-facing copy",
+  "guest profile reviews name the fix screen in creator-facing copy",
+);
+assert.ok(
+  html.includes("guest.change !== \"none\" && guest.decision === \"reuse\""),
+  "profile change reviews declare a fix screen alongside possible-match reviews",
 );
 assert.ok(
   fs.existsSync(path.join(__dirname, "social-context-intake.html")),
@@ -39,4 +43,4 @@ assert.ok(html.includes("!issue.fixScreen || !issue.fixLabel"), "fix link helper
 assert.ok(html.includes("openLink.href = issue.fixScreen"), "fix link uses the issue fix-screen target");
 assert.ok(html.includes('openLink.className = "fix-link"'), "fix link keeps shared focus styling");
 
-console.log("guest profile reuse: possible-match reviews open social context intake");
+console.log("guest profile reuse: possible-match and profile-change reviews open social context intake");
