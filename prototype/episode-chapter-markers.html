@@ -537,6 +537,8 @@
               tone: "review",
               title: label + " starts mid-sentence",
               action: "Nudge its start to a clean line so the chapter does not open mid-thought.",
+              fixScreen: "transcript-search-navigation.html",
+              fixLabel: "transcript search",
             };
           }
           return null;
@@ -668,10 +670,14 @@
         }
 
         function renderIssue(issue) {
-          return el("article", { className: "issue " + issue.tone }, [
+          var children = [
             el("strong", { text: issue.title }),
             el("span", { text: issue.action }),
-          ]);
+          ];
+          if (issue.fixScreen && issue.fixLabel) {
+            children.push(el("a", { text: "Open " + issue.fixLabel, attrs: { href: issue.fixScreen } }));
+          }
+          return el("article", { className: "issue " + issue.tone }, children);
         }
 
         function render() {
