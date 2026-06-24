@@ -937,7 +937,7 @@
             const jump = document.createElement("button");
             jump.type = "button";
             jump.className = "secondary";
-            jump.textContent = `Open ${trackBucketLabel(result.name)}`;
+            jump.textContent = `Open ${trackBucketLabel(result.name)} · ${issues[result.issue].label}`;
             jump.addEventListener("click", () => focusTrack(result.id));
             links.appendChild(jump);
           }
