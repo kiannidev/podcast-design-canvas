@@ -82,6 +82,57 @@
         gap: 10px;
       }
 
+      .cleanup-rollup {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #ffffff;
+        padding: 14px;
+        margin-bottom: 16px;
+        display: grid;
+        gap: 10px;
+      }
+
+      .cleanup-rollup.all-clear {
+        border-color: #b8ddd4;
+        background: #f3fbf8;
+      }
+
+      .rollup-head {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .rollup-status {
+        display: inline-flex;
+        align-items: center;
+        min-height: 30px;
+        border-radius: 999px;
+        padding: 0 12px;
+        font-weight: 800;
+        font-size: 13px;
+      }
+
+      .rollup-status.all-clear { color: #075246; background: #dff5ef; }
+      .rollup-status.attention { color: #7a4400; background: #fff1d6; }
+
+      .rollup-detail {
+        margin: 0;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .rollup-links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .speaker.jump-highlight {
+        box-shadow: 0 0 0 2px #136f63;
+      }
+
       .speaker {
         border: 1px solid var(--line);
         border-radius: 8px;
@@ -298,6 +349,7 @@
           <div class="compare" id="compare" aria-live="polite"></div>
 
           <h2>Speaker balance</h2>
+          <div class="cleanup-rollup" id="cleanupRollup" aria-live="polite"></div>
           <div class="speakers" id="speakers"></div>
         </div>
 
@@ -351,6 +403,7 @@
       const momentsElement = document.querySelector("#moments");
       const compareElement = document.querySelector("#compare");
       const speakersElement = document.querySelector("#speakers");
+      const rollupElement = document.querySelector("#cleanupRollup");
       const statusElement = document.querySelector("#status");
       const summaryElement = document.querySelector("#summary");
       const momentHintElement = document.querySelector("#moment-hint");
@@ -369,6 +422,7 @@
         momentsElement.replaceChildren(...previewMoments.map(renderMoment));
         renderCompare();
         speakersElement.replaceChildren(...speakers.map((speaker, index) => renderSpeaker(speaker, index)));
+        renderRollup();
         renderMomentHint();
 
         statusElement.textContent = speakers.some((speaker) => speaker.state === "suggested")
@@ -406,6 +460,66 @@
         }
 
         return "Tracks are already clean enough for the final episode.";
+      }
+
+      function buildRollup() {
+        const needsWork = speakers.filter((speaker) => speaker.state === "suggested");
+        const clearCount = speakers.length - needsWork.length;
+
+        if (needsWork.length) {
+          return {
+            statusClass: "attention",
+            status: "Cleanup suggested",
+            detail: `${needsWork.length} track${needsWork.length === 1 ? "" : "s"} need cleanup review · ${clearCount} already clear`,
+            needsWork,
+          };
+        }
+
+        return {
+          statusClass: "all-clear",
+          status: "Sounds ready",
+          detail: `All ${speakers.length} speaker buckets are settled`,
+          needsWork,
+        };
+      }
+
+      function renderRollup() {
+        const rollup = buildRollup();
+        rollupElement.className = `cleanup-rollup ${rollup.statusClass === "all-clear" ? "all-clear" : ""}`;
+        rollupElement.replaceChildren();
+
+        const head = document.createElement("div");
+        head.className = "rollup-head";
+        const status = document.createElement("span");
+        status.className = `rollup-status ${rollup.statusClass}`;
+        status.textContent = rollup.status;
+        const detail = document.createElement("p");
+        detail.className = "rollup-detail";
+        detail.textContent = rollup.detail;
+        head.append(status, detail);
+        rollupElement.appendChild(head);
+
+        if (rollup.needsWork.length) {
+          const links = document.createElement("div");
+          links.className = "rollup-links";
+          for (const speaker of rollup.needsWork) {
+            const jump = document.createElement("button");
+            jump.type = "button";
+            jump.className = "secondary";
+            jump.textContent = `Open ${bucketLabel(speaker)}`;
+            jump.addEventListener("click", () => focusSpeaker(speaker.id));
+            links.appendChild(jump);
+          }
+          rollupElement.appendChild(links);
+        }
+      }
+
+      function focusSpeaker(speakerId) {
+        const target = document.querySelector(`#speaker-${speakerId}`);
+        if (!target) return;
+        target.classList.add("jump-highlight");
+        target.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        window.setTimeout(() => target.classList.remove("jump-highlight"), 1600);
       }
 
       function speakerBadgeClass(state) {
@@ -582,6 +696,7 @@
       function renderSpeaker(speaker, index) {
         const article = document.createElement("article");
         article.className = "speaker";
+        article.id = `speaker-${speaker.id}`;
         const head = document.createElement("div");
         head.style.display = "flex";
         head.style.justifyContent = "space-between";
