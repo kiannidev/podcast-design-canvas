@@ -270,6 +270,12 @@
         margin-bottom: 18px;
       }
 
+      .compare-moment-note {
+        color: var(--muted);
+        font-size: 13px;
+        margin: -10px 0 14px;
+      }
+
       .preview-card {
         border: 1px solid var(--line);
         border-radius: 8px;
@@ -436,6 +442,7 @@
           <p class="moment-hint" id="moment-hint" aria-live="polite"></p>
 
           <h2>Compare on this moment</h2>
+          <p class="compare-moment-note" id="compare-moment-note" aria-live="polite"></p>
           <div class="compare" id="compare" aria-live="polite"></div>
 
           <h2>Speaker balance</h2>
@@ -499,6 +506,7 @@
       const summaryElement = document.querySelector("#summary");
       const momentHintElement = document.querySelector("#moment-hint");
       const previewNowElement = document.querySelector("#preview-now");
+      const compareMomentNoteElement = document.querySelector("#compare-moment-note");
 
       document.querySelector("#apply").addEventListener("click", () => {
         applied = true;
@@ -859,6 +867,7 @@
 
       function renderCompare() {
         const moment = previewMoments.find((entry) => entry.id === preview);
+        compareMomentNoteElement.textContent = moment?.note ?? "";
         const original = momentProfiles[preview];
         const cleaned = buildCleanedPreview(original);
         const effects = activeEffects();
@@ -869,7 +878,7 @@
             "With cleanup",
             enabled.size ? cleaned : original,
             true,
-            enabled.size ? moment.note : "Turn on a cleanup choice to preview the difference.",
+            enabled.size ? moment?.note ?? "Turn on a cleanup choice to preview the difference." : "Turn on a cleanup choice to preview the difference.",
             effects,
           ),
         );
