@@ -447,7 +447,9 @@
               tone: "review",
               ...(moment.type === "title"
                 ? { fixScreen: "contextual-title-cards.html", fixLabel: "title cards" }
-                : {}),
+                : moment.type === "sponsor"
+                  ? { fixScreen: "social-context-intake.html", fixLabel: "social context intake" }
+                  : {}),
             };
           } else if (moment.decision === "suggested" && source.weak) {
             state = "review";

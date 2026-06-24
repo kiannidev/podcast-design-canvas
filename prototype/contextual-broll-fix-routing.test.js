@@ -1,7 +1,7 @@
 "use strict";
 
-// Guards contextual B-roll hand-off links (#583): weak-context and back-to-back
-// title reviews open the screen that owns each fix.
+// Guards contextual B-roll hand-off links (#583): weak-context, back-to-back title,
+// and back-to-back sponsor reviews open the screen that owns each fix.
 // Run with: `node prototype/contextual-broll-fix-routing.test.js`
 
 const fs = require("fs");
@@ -27,6 +27,10 @@ assert.ok(
 assert.ok(
   fixScreens.includes("contextual-title-cards.html"),
   "back-to-back title cards route to title cards screen",
+);
+assert.ok(
+  html.includes('moment.type === "sponsor"'),
+  "back-to-back sponsor callouts declare a fix screen",
 );
 
 console.log(`contextual B-roll: ${fixScreens.length} issue paths open their owning fix screen`);
