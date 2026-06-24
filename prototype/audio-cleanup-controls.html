@@ -406,6 +406,11 @@
         color: #ffffff;
       }
 
+      button.primary:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
       .status {
         display: inline-flex;
         align-items: center;
@@ -421,6 +426,41 @@
         color: var(--muted);
         font-size: 13px;
         margin-top: 14px;
+      }
+
+      .apply-ready {
+        color: var(--muted);
+        font-size: 13px;
+        margin: 12px 0 0;
+        padding: 12px;
+        border: 1px dashed var(--line);
+        border-radius: 8px;
+        background: #ffffff;
+        display: grid;
+        gap: 8px;
+      }
+
+      .apply-ready strong {
+        color: var(--ink);
+        font-size: 13px;
+      }
+
+      .apply-ready-names {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+
+      .apply-ready-names .apply-ready-name {
+        display: inline-flex;
+        align-items: center;
+        min-height: 24px;
+        border-radius: 999px;
+        padding: 0 9px;
+        font-size: 11px;
+        font-weight: 700;
+        color: #7a4400;
+        background: #fff1d6;
       }
 
       .speaker-actions {
@@ -473,6 +513,7 @@
           <h2>Cleanup summary</h2>
           <div id="status" class="status">Sounds ready</div>
           <p class="note" id="summary"></p>
+          <div class="apply-ready" id="apply-ready" hidden aria-live="polite"></div>
           <button type="button" class="primary" id="apply" style="margin-top: 14px;">Apply to episode</button>
         </aside>
       </section>
@@ -523,6 +564,8 @@
       const rollupElement = document.querySelector("#cleanupRollup");
       const statusElement = document.querySelector("#status");
       const summaryElement = document.querySelector("#summary");
+      const applyReadyElement = document.querySelector("#apply-ready");
+      const applyButton = document.querySelector("#apply");
       const momentHintElement = document.querySelector("#moment-hint");
       const previewNowElement = document.querySelector("#preview-now");
       const previewTradeoffElement = document.querySelector("#preview-tradeoff");
@@ -565,6 +608,53 @@
           ? "Cleanup suggested"
           : "Sounds ready";
         summaryElement.textContent = buildSummary();
+        renderApplyReady();
+      }
+
+      function speakersAwaitingCleanup() {
+        return speakers.filter((speaker) => speaker.state === "suggested");
+      }
+
+      function renderApplyReady() {
+        applyReadyElement.replaceChildren();
+        const awaiting = speakersAwaitingCleanup();
+        const hasChoices = enabled.size > 0;
+        applyButton.disabled = awaiting.length > 0 && !hasChoices;
+
+        if (!awaiting.length) {
+          applyReadyElement.hidden = true;
+          return;
+        }
+
+        applyReadyElement.hidden = false;
+
+        const lead = document.createElement("strong");
+        lead.textContent = "These speakers will sound cleaner:";
+
+        const names = document.createElement("div");
+        names.className = "apply-ready-names";
+        names.setAttribute("aria-label", "Speakers that will receive cleanup");
+
+        for (const speaker of awaiting) {
+          const tag = document.createElement("span");
+          tag.className = "apply-ready-name";
+          tag.textContent = bucketLabel(speaker);
+          names.appendChild(tag);
+        }
+
+        const detail = document.createElement("p");
+        detail.className = "note";
+        detail.style.margin = "0";
+        const previewLabel = previewMoments.find((moment) => moment.id === preview)?.label;
+        if (hasChoices && previewLabel) {
+          detail.textContent = `Previewed on ${previewLabel}. Speakers you kept as-is won't change.`;
+        } else if (hasChoices) {
+          detail.textContent = "Your quality improvements apply to speakers that need cleanup. Speakers you kept as-is won't change.";
+        } else {
+          detail.textContent = "Turn on at least one quality improvement above to preview before applying.";
+        }
+
+        applyReadyElement.append(lead, names, detail);
       }
 
       function bucketLabel(speaker) {
