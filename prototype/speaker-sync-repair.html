@@ -177,6 +177,24 @@
         background: #e8edf5;
       }
 
+      .rollup-effect-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+
+      .rollup-effect-tags .rollup-effect-tag {
+        display: inline-flex;
+        align-items: center;
+        min-height: 26px;
+        border-radius: 999px;
+        padding: 0 10px;
+        font-size: 12px;
+        font-weight: 700;
+        color: #5e6b67;
+        background: #eef2f0;
+      }
+
       .track.jump-highlight {
         box-shadow: 0 0 0 2px #136f63;
       }
@@ -846,6 +864,23 @@
         return wrap;
       }
 
+      function renderRollupRepairEffectTags(needsWork) {
+        const wrap = document.createElement("div");
+        wrap.className = "rollup-effect-tags";
+        wrap.setAttribute("aria-label", "Expected repair outcomes for tracks needing review");
+
+        for (const result of needsWork) {
+          const effect = repairEffects[result.proposedRepair];
+          if (!effect) continue;
+          const tag = document.createElement("span");
+          tag.className = "rollup-effect-tag";
+          tag.textContent = `${trackBucketLabel(result.name)} — ${effect}`;
+          wrap.appendChild(tag);
+        }
+
+        return wrap;
+      }
+
       function renderRollup(evaluation, reviewCount) {
         const rollup = buildRollup(evaluation);
         rollupElement.className = `track-rollup ${rollup.statusClass === "all-clear" ? "all-clear" : ""}`;
@@ -871,6 +906,10 @@
           const momentTags = renderRollupMomentTags(rollup.needsWork);
           if (momentTags.childElementCount) {
             rollupElement.appendChild(momentTags);
+          }
+          const effectTags = renderRollupRepairEffectTags(rollup.needsWork);
+          if (effectTags.childElementCount) {
+            rollupElement.appendChild(effectTags);
           }
         }
 
