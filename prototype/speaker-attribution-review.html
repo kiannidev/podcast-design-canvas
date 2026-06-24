@@ -1,0 +1,511 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Speaker Attribution Review Prototype</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #16211f;
+        --muted: #5e6b67;
+        --line: #d9e0dd;
+        --panel: #f7faf8;
+        --accent: #136f63;
+        --warn: #a15c00;
+        --block: #a52828;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      * { box-sizing: border-box; }
+
+      body { margin: 0; color: var(--ink); background: #ffffff; }
+
+      main {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 32px 20px 48px;
+      }
+
+      h1, h2, p { margin-top: 0; }
+
+      h1 { font-size: 32px; line-height: 1.1; margin-bottom: 8px; }
+
+      .lede { color: var(--muted); max-width: 760px; }
+
+      .workspace {
+        display: grid;
+        grid-template-columns: minmax(0, 1.5fr) minmax(320px, 0.85fr);
+        gap: 24px;
+        margin-top: 28px;
+      }
+
+      .panel {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel);
+        padding: 18px;
+      }
+
+      .lines { display: grid; gap: 14px; }
+
+      .line {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr);
+        gap: 14px;
+        padding: 14px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #ffffff;
+      }
+
+      .frame {
+        position: relative;
+        width: 116px;
+        aspect-ratio: 16 / 9;
+        flex: none;
+        border-radius: 6px;
+        overflow: hidden;
+        background: linear-gradient(160deg, #6db5a8, #1d554d);
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18);
+      }
+
+      .frame .speaker {
+        position: absolute;
+        top: 14%;
+        left: 50%;
+        width: 34%;
+        aspect-ratio: 1;
+        transform: translateX(-50%);
+        border-radius: 50%;
+        background: #e8f4f1;
+      }
+
+      .frame .speaker.guest { left: 68%; width: 28%; }
+
+      .frame .label {
+        position: absolute;
+        left: 7%;
+        top: 7%;
+        border-radius: 4px;
+        background: rgba(16, 24, 22, 0.82);
+        color: #ffffff;
+        font-size: 10px;
+        font-weight: 700;
+        padding: 2px 6px;
+      }
+
+      .frame .label.wrong { background: rgba(165, 40, 40, 0.92); }
+
+      .frame .caption {
+        position: absolute;
+        right: 7%;
+        bottom: 8%;
+        left: 7%;
+        border-radius: 5px;
+        background: rgba(16, 24, 22, 0.82);
+        color: #ffffff;
+        font-size: 10px;
+        font-weight: 700;
+        line-height: 1.3;
+        padding: 5px 6px;
+        text-align: center;
+      }
+
+      .fields { display: grid; gap: 10px; align-content: start; }
+
+      .head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+      }
+
+      .meta { color: var(--muted); font-size: 13px; }
+
+      label {
+        display: grid;
+        gap: 6px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      select {
+        min-height: 38px;
+        border: 1px solid #bfcbc7;
+        border-radius: 6px;
+        background: #ffffff;
+        color: var(--ink);
+        font: inherit;
+        padding: 8px 10px;
+      }
+
+      .actions { display: flex; flex-wrap: wrap; gap: 10px; }
+
+      button {
+        min-height: 38px;
+        border: 1px solid #0f5d53;
+        border-radius: 6px;
+        background: var(--accent);
+        color: #ffffff;
+        font: inherit;
+        font-weight: 700;
+        padding: 7px 12px;
+        cursor: pointer;
+      }
+
+      button.secondary { background: #ffffff; color: var(--accent); }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        min-height: 28px;
+        border-radius: 999px;
+        padding: 0 11px;
+        font-weight: 700;
+        font-size: 13px;
+      }
+
+      .badge.ready { color: #075246; background: #dff5ef; }
+      .badge.mismatch { color: #8b1e1e; background: #ffe0e0; }
+      .badge.needs { color: #7a4400; background: #fff1d6; }
+      .badge.sync { color: #5a3f8f; background: #efe8ff; }
+
+      .bulk {
+        margin-top: 18px;
+        padding-top: 18px;
+        border-top: 1px solid var(--line);
+      }
+
+      .preview-count {
+        border-left: 4px solid var(--accent);
+        border-radius: 6px;
+        background: #f4faf8;
+        padding: 10px 12px;
+        font-size: 13px;
+        color: var(--muted);
+        margin-top: 10px;
+      }
+
+      .status {
+        display: inline-flex;
+        align-items: center;
+        min-height: 32px;
+        border-radius: 999px;
+        padding: 0 12px;
+        font-weight: 800;
+      }
+
+      .status.ready { color: #075246; background: #dff5ef; }
+      .status.review { color: #7a4400; background: #fff1d6; }
+
+      .issues { display: grid; gap: 10px; margin-top: 14px; }
+
+      .issue {
+        border-left: 4px solid var(--warn);
+        border-radius: 6px;
+        background: #ffffff;
+        padding: 12px;
+      }
+
+      .issue.info { border-left-color: var(--accent); }
+      .issue strong { display: block; margin-bottom: 4px; }
+      .issue span { color: var(--muted); font-size: 13px; }
+
+      .note { color: var(--muted); font-size: 13px; margin-top: 14px; }
+
+      @media (max-width: 840px) {
+        .workspace { grid-template-columns: 1fr; }
+        .line { grid-template-columns: 1fr; }
+        .frame { width: 100%; }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Speaker attribution review</h1>
+      <p class="lede">Confirm host, guest, and off-camera voices are attached to the right caption lines — using speaker buckets from ingest and role mapping. Implements the flow in <code>docs/speaker-attribution-review.md</code>.</p>
+
+      <section class="workspace" aria-label="Speaker attribution workspace">
+        <div class="panel">
+          <h2>Caption lines</h2>
+          <div class="lines" id="lines"></div>
+
+          <div class="bulk">
+            <h2>Bulk re-attribution</h2>
+            <p class="meta">Preview how many lines change before applying an episode-wide fix.</p>
+            <label>Reassign every line currently labeled
+              <select id="bulkFrom">
+                <option value="Guest 1">Guest 1 — Marcus Lee</option>
+                <option value="Host">Host — Dana Brooks</option>
+              </select>
+            </label>
+            <label>To speaker bucket
+              <select id="bulkTo">
+                <option value="Host">Host — Dana Brooks</option>
+                <option value="Guest 1">Guest 1 — Marcus Lee</option>
+                <option value="Off-camera">Off-camera narrator</option>
+              </select>
+            </label>
+            <div class="actions" style="margin-top: 10px;">
+              <button type="button" class="secondary" id="previewBulk">Preview changes</button>
+              <button type="button" id="applyBulk" disabled>Apply bulk reassignment</button>
+            </div>
+            <div class="preview-count" id="bulkPreview" hidden></div>
+          </div>
+
+          <div class="actions" style="margin-top: 18px;">
+            <button type="button" class="secondary" id="reset">Reset sample</button>
+          </div>
+        </div>
+
+        <aside class="panel" aria-live="polite">
+          <h2>Attribution summary</h2>
+          <div id="status" class="status review">Attribution needs review</div>
+          <div class="issues" id="issues"></div>
+          <p class="note">Timing problems route to sync repair instead of relabeling every caption.</p>
+        </aside>
+      </section>
+    </main>
+
+    <script>
+      const speakers = {
+        Host: "Host — Dana Brooks",
+        "Guest 1": "Guest 1 — Marcus Lee",
+        "Off-camera": "Off-camera narrator",
+      };
+
+      const sampleLines = [
+        {
+          id: "l1",
+          moment: "04:18",
+          caption: "Welcome back — let's pick up where we left off",
+          assigned: "Host",
+          proposed: "Host",
+          issue: "ready",
+          resolution: "confirmed",
+        },
+        {
+          id: "l2",
+          moment: "31:05",
+          caption: "That's the part we rewired last quarter",
+          assigned: "Guest 1",
+          proposed: "Host",
+          issue: "speaker mismatch",
+          resolution: null,
+        },
+        {
+          id: "l3",
+          moment: "31:22",
+          caption: "Right, and the rollout took about six weeks",
+          assigned: null,
+          proposed: "Guest 1",
+          issue: "needs speaker",
+          resolution: null,
+        },
+        {
+          id: "l4",
+          moment: "38:50",
+          caption: "Producer note: we'll add the link in show notes",
+          assigned: "Guest 1",
+          proposed: "Off-camera",
+          issue: "speaker mismatch",
+          resolution: null,
+        },
+      ];
+
+      let lines = structuredClone(sampleLines);
+      let bulkPreviewCount = null;
+
+      const linesElement = document.querySelector("#lines");
+      const statusElement = document.querySelector("#status");
+      const issuesElement = document.querySelector("#issues");
+      const bulkPreviewElement = document.querySelector("#bulkPreview");
+      const applyBulkButton = document.querySelector("#applyBulk");
+
+      document.querySelector("#reset").addEventListener("click", () => {
+        lines = structuredClone(sampleLines);
+        bulkPreviewCount = null;
+        bulkPreviewElement.hidden = true;
+        applyBulkButton.disabled = true;
+        render();
+      });
+
+      document.querySelector("#previewBulk").addEventListener("click", () => {
+        const from = document.querySelector("#bulkFrom").value;
+        bulkPreviewCount = lines.filter((line) => line.assigned === from).length;
+        bulkPreviewElement.hidden = false;
+        bulkPreviewElement.textContent = bulkPreviewCount
+          ? `Preview: ${bulkPreviewCount} caption line${bulkPreviewCount === 1 ? "" : "s"} would move from ${speakers[from]} to ${speakers[document.querySelector("#bulkTo").value]}.`
+          : "Preview: no lines currently use that label.";
+        applyBulkButton.disabled = bulkPreviewCount === 0;
+      });
+
+      document.querySelector("#applyBulk").addEventListener("click", () => {
+        const from = document.querySelector("#bulkFrom").value;
+        const to = document.querySelector("#bulkTo").value;
+        lines = lines.map((line) => {
+          if (line.assigned === from) {
+            return { ...line, assigned: to, proposed: to, issue: "ready", resolution: "confirmed" };
+          }
+          return line;
+        });
+        bulkPreviewCount = null;
+        bulkPreviewElement.hidden = true;
+        applyBulkButton.disabled = true;
+        render();
+      });
+
+      function stateFor(line) {
+        if (line.resolution === "sync repair needed") return "sync repair needed";
+        if (line.resolution === "confirmed") return "ready";
+        return line.issue;
+      }
+
+      function evaluate(list) {
+        return list.map((line) => ({ ...line, state: stateFor(line) }));
+      }
+
+      function badgeClass(state) {
+        if (state === "ready") return "ready";
+        if (state === "speaker mismatch") return "mismatch";
+        if (state === "sync repair needed") return "sync";
+        return "needs";
+      }
+
+      function renderFrame(line) {
+        const frame = document.createElement("div");
+        frame.className = "frame";
+
+        const host = document.createElement("div");
+        host.className = "speaker";
+        const guest = document.createElement("div");
+        guest.className = "speaker guest";
+
+        const label = document.createElement("div");
+        label.className = `label ${line.issue === "speaker mismatch" ? "wrong" : ""}`;
+        label.textContent = line.assigned ? speakers[line.assigned] : "Unlabeled";
+
+        const caption = document.createElement("div");
+        caption.className = "caption";
+        caption.textContent = line.caption;
+
+        frame.append(host, guest, label, caption);
+        return frame;
+      }
+
+      function renderLine(line, result) {
+        const article = document.createElement("article");
+        article.className = "line";
+        article.dataset.id = line.id;
+
+        const fields = document.createElement("div");
+        fields.className = "fields";
+
+        const head = document.createElement("div");
+        head.className = "head";
+        const title = document.createElement("strong");
+        title.textContent = line.moment;
+        const badge = document.createElement("span");
+        badge.className = `badge ${badgeClass(result.state)}`;
+        badge.textContent = result.state;
+        head.append(title, badge);
+
+        const meta = document.createElement("div");
+        meta.className = "meta";
+        meta.textContent = line.caption;
+
+        const label = document.createElement("label");
+        label.textContent = "Assign speaker bucket";
+        const select = document.createElement("select");
+        for (const [value, copy] of Object.entries(speakers)) {
+          const option = document.createElement("option");
+          option.value = value;
+          option.textContent = copy;
+          option.selected = value === line.proposed;
+          select.appendChild(option);
+        }
+        select.addEventListener("change", () => {
+          const item = lines.find((entry) => entry.id === line.id);
+          item.proposed = select.value;
+          item.resolution = null;
+          syncLine(line.id);
+        });
+        label.appendChild(select);
+
+        const actions = document.createElement("div");
+        actions.className = "actions";
+
+        const confirmButton = document.createElement("button");
+        confirmButton.type = "button";
+        confirmButton.textContent = "Confirm assignment";
+        confirmButton.addEventListener("click", () => {
+          const item = lines.find((entry) => entry.id === line.id);
+          item.assigned = item.proposed;
+          item.issue = "ready";
+          item.resolution = "confirmed";
+          render();
+        });
+
+        const syncButton = document.createElement("button");
+        syncButton.type = "button";
+        syncButton.className = "secondary";
+        syncButton.textContent = "Open sync repair";
+        syncButton.hidden = line.issue !== "speaker mismatch";
+        syncButton.addEventListener("click", () => {
+          const item = lines.find((entry) => entry.id === line.id);
+          item.resolution = "sync repair needed";
+          render();
+        });
+
+        actions.append(confirmButton, syncButton);
+        fields.append(head, meta, label, actions);
+        article.append(renderFrame(line), fields);
+        return article;
+      }
+
+      function syncLine(id) {
+        const result = evaluate(lines).find((entry) => entry.id === id);
+        const badge = document.querySelector(`.line[data-id="${id}"] .badge`);
+        if (badge) {
+          badge.className = `badge ${badgeClass(result.state)}`;
+          badge.textContent = result.state;
+        }
+        renderSummary();
+      }
+
+      function renderSummary() {
+        const results = evaluate(lines);
+        const open = results.some((result) => result.state !== "ready" && result.state !== "sync repair needed");
+
+        statusElement.className = `status ${open ? "review" : "ready"}`;
+        statusElement.textContent = open ? "Attribution needs review" : "Captions attributed";
+
+        issuesElement.replaceChildren(...results.map((result) => {
+          const article = document.createElement("article");
+          article.className = "issue info";
+          const strong = document.createElement("strong");
+          const span = document.createElement("span");
+          strong.textContent = `${result.moment}: ${result.state}`;
+          span.textContent = result.state === "ready"
+            ? `Assigned to ${speakers[result.assigned]}.`
+            : result.state === "sync repair needed"
+              ? "Handed off to sync repair — timing may be the cause."
+              : result.state === "needs speaker"
+                ? "Choose a speaker bucket and confirm."
+                : `Currently labeled ${result.assigned ? speakers[result.assigned] : "unlabeled"} — proposed ${speakers[result.proposed]}.`;
+          article.append(strong, span);
+          return article;
+        }));
+      }
+
+      function render() {
+        const results = evaluate(lines);
+        linesElement.replaceChildren(...lines.map((line, index) => renderLine(line, results[index])));
+        renderSummary();
+      }
+
+      render();
+    </script>
+  </body>
+</html>
