@@ -254,6 +254,22 @@
         color: var(--muted);
       }
 
+      .issue .fix-link {
+        display: inline-block;
+        margin-top: 8px;
+        color: var(--accent);
+        font-weight: 700;
+        font-size: 13px;
+        text-decoration: none;
+      }
+
+      .issue .fix-link:hover,
+      .issue .fix-link:focus-visible {
+        text-decoration: underline;
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+      }
+
       .actions {
         display: flex;
         flex-wrap: wrap;
@@ -347,6 +363,8 @@
           fixes: ["review", "contrast", "accept"],
           title: "Captions are hard to read against the background",
           suggest: "Increase the caption contrast, or accept it if it reads fine here.",
+          fixScreen: "layout-safe-areas.html",
+          fixLabel: "layout safe areas",
         },
         small: {
           label: "Captions are too small",
@@ -354,6 +372,8 @@
           fixes: ["review", "size", "accept"],
           title: "Captions are too small to read comfortably",
           suggest: "Increase the caption size, or accept it for this destination.",
+          fixScreen: "layout-safe-areas.html",
+          fixLabel: "layout safe areas",
         },
         "covers-face": {
           label: "Captions cover a face",
@@ -361,6 +381,8 @@
           fixes: ["review", "move", "accept"],
           title: "Captions sit over the active speaker's face",
           suggest: "Move the captions, or accept it if the face still reads.",
+          fixScreen: "layout-safe-areas.html",
+          fixLabel: "layout safe areas",
         },
         "fast-motion": {
           label: "Title moves too fast",
@@ -368,6 +390,8 @@
           fixes: ["review", "slow", "accept"],
           title: "A title card moves too fast to read",
           suggest: "Slow the title animation, or accept it if it's still legible.",
+          fixScreen: "contextual-title-cards.html",
+          fixLabel: "contextual title cards",
         },
         flashing: {
           label: "Repeated flashing motion",
@@ -375,6 +399,8 @@
           fixes: ["review", "reduce"],
           title: "Flashing or intense motion repeats",
           suggest: "Reduce the motion so it's comfortable to watch — this one shouldn't ship as is.",
+          fixScreen: "contextual-title-cards.html",
+          fixLabel: "contextual title cards",
         },
         "no-text": {
           label: "Visual has no text version",
@@ -382,6 +408,8 @@
           fixes: ["review", "addtext", "accept"],
           title: "Important on-screen info has no text equivalent",
           suggest: "Add a caption or on-screen text for it, or accept it if it's decorative.",
+          fixScreen: "on-screen-correction-note.html",
+          fixLabel: "on-screen correction note",
         },
       };
 
@@ -456,6 +484,8 @@
               title: `${check.title} (${where})`,
               action: check.suggest,
               tone: "review",
+              fixScreen: check.fixScreen,
+              fixLabel: check.fixLabel,
             };
           }
 
@@ -577,6 +607,13 @@
         const span = document.createElement("span");
         span.textContent = issue.action;
         article.append(strong, span);
+        if (issue.fixScreen) {
+          const openLink = document.createElement("a");
+          openLink.className = "fix-link";
+          openLink.href = issue.fixScreen;
+          openLink.textContent = `Open ${issue.fixLabel} →`;
+          article.append(openLink);
+        }
         return article;
       }
 
