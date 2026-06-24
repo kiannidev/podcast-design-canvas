@@ -549,7 +549,9 @@
       }
 
       function bucketLabel(speaker) {
-        return speaker.name.split(" — ")[0];
+        const name = speaker?.name;
+        if (typeof name !== "string" || !name.length) return "Speaker";
+        return name.split(" — ")[0] || "Speaker";
       }
 
       function rollupOpenSpeakerLinkLabel(speaker) {
