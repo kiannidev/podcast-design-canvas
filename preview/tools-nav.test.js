@@ -43,6 +43,11 @@ const publishFlow = new Set([
   "publish-checklist.html",
 ]);
 
+const styleFlow = new Set([
+  "preset-style-picker.html",
+  "preset-comparison-preview.html",
+]);
+
 const prototypes = fs
   .readdirSync(path.join(root, "prototype"))
   .filter((name) => name.endsWith(".html"));
@@ -76,6 +81,15 @@ for (const file of prototypes) {
     assert.ok(
       !html.includes("../preview/tools-nav.js"),
       `publish screen does not double up with tools nav: ${file}`,
+    );
+  } else if (styleFlow.has(file)) {
+    assert.ok(
+      html.includes("../preview/style-nav.js"),
+      `style screen uses style navigation: ${file}`,
+    );
+    assert.ok(
+      !html.includes("../preview/tools-nav.js"),
+      `style screen does not double up with tools nav: ${file}`,
     );
   } else {
     // Every secondary screen links back to the shell.
