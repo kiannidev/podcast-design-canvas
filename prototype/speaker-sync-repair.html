@@ -1,0 +1,531 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Speaker Sync Repair Prototype</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #16211f;
+        --muted: #5e6b67;
+        --line: #d9e0dd;
+        --panel: #f7faf8;
+        --accent: #136f63;
+        --warn: #a15c00;
+        --block: #a52828;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        color: var(--ink);
+        background: #ffffff;
+      }
+
+      main {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 32px 20px 48px;
+      }
+
+      h1,
+      h2,
+      p {
+        margin-top: 0;
+      }
+
+      h1 {
+        font-size: 32px;
+        line-height: 1.1;
+        margin-bottom: 8px;
+      }
+
+      .lede {
+        color: var(--muted);
+        max-width: 760px;
+      }
+
+      .workspace {
+        display: grid;
+        grid-template-columns: minmax(0, 1.5fr) minmax(320px, 0.85fr);
+        gap: 24px;
+        margin-top: 28px;
+      }
+
+      .panel {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel);
+        padding: 18px;
+      }
+
+      .tracks {
+        display: grid;
+        gap: 14px;
+      }
+
+      .track {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #ffffff;
+        padding: 14px;
+        display: grid;
+        gap: 12px;
+      }
+
+      .head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        min-height: 28px;
+        border-radius: 999px;
+        padding: 0 11px;
+        font-weight: 700;
+        font-size: 13px;
+        white-space: nowrap;
+      }
+
+      .badge.flagged { color: #7a4400; background: #fff1d6; }
+      .badge.repaired { color: #075246; background: #dff5ef; }
+      .badge.accepted { color: #3f4d66; background: #e8edf5; }
+      .badge.attribution { color: #5a3f8f; background: #efe8ff; }
+      .badge.ignored { color: #5e6b67; background: #eef2f0; }
+      .badge.blocked { color: #8b1e1e; background: #ffe0e0; }
+
+      label {
+        display: grid;
+        gap: 6px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      select {
+        width: 100%;
+        min-height: 40px;
+        border: 1px solid #bfcbc7;
+        border-radius: 6px;
+        background: #ffffff;
+        color: var(--ink);
+        font: inherit;
+        padding: 8px 10px;
+      }
+
+      .moment {
+        border-left: 4px solid var(--warn);
+        border-radius: 6px;
+        background: #fffdf8;
+        padding: 12px;
+      }
+
+      .moment strong {
+        display: block;
+        margin-bottom: 4px;
+      }
+
+      .moment span {
+        color: var(--muted);
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      button {
+        min-height: 40px;
+        border: 1px solid #0f5d53;
+        border-radius: 6px;
+        background: var(--accent);
+        color: #ffffff;
+        font: inherit;
+        font-weight: 700;
+        padding: 8px 12px;
+        cursor: pointer;
+      }
+
+      button.secondary {
+        background: #ffffff;
+        color: var(--accent);
+      }
+
+      .status {
+        display: inline-flex;
+        align-items: center;
+        min-height: 32px;
+        border-radius: 999px;
+        padding: 0 12px;
+        font-weight: 800;
+      }
+
+      .status.ready { color: #075246; background: #dff5ef; }
+      .status.review { color: #7a4400; background: #fff1d6; }
+      .status.blocked { color: #8b1e1e; background: #ffe0e0; }
+
+      .issues {
+        display: grid;
+        gap: 10px;
+        margin-top: 14px;
+      }
+
+      .issue {
+        border-left: 4px solid var(--warn);
+        border-radius: 6px;
+        background: #ffffff;
+        padding: 12px;
+      }
+
+      .issue.blocker { border-left-color: var(--block); }
+      .issue.info { border-left-color: var(--accent); }
+
+      .issue strong { display: block; margin-bottom: 4px; }
+      .issue span { color: var(--muted); }
+
+      .summary-note {
+        color: var(--muted);
+        font-size: 13px;
+        margin: 14px 0 0;
+      }
+
+      @media (max-width: 840px) {
+        .workspace { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Speaker sync repair</h1>
+      <p class="lede">Fix visible timing problems between separate speaker recordings before styling or export. We describe what viewers would notice — not raw timecode — and preview the repair on a real moment first.</p>
+
+      <section class="workspace" aria-label="Speaker sync repair workspace">
+        <div class="panel">
+          <h2>Speaker tracks</h2>
+          <div class="tracks" id="tracks"></div>
+          <div class="actions" style="margin-top: 18px;">
+            <button type="button" class="secondary" id="reset">Reset sample</button>
+          </div>
+        </div>
+
+        <aside class="panel" aria-live="polite" aria-label="Sync repair summary">
+          <h2>Sync summary</h2>
+          <div id="status" class="status ready">Ready to style</div>
+          <div id="issues" class="issues"></div>
+          <p class="summary-note">Repairs update only the affected span. Unrelated caption or attribution warnings stay open until their owning review is done.</p>
+        </aside>
+      </section>
+    </main>
+
+    <script>
+      const issues = {
+        "video-late": {
+          label: "Video starts late",
+          moment: "Episode opening",
+          description: (name) => `${name}'s video starts after you can already hear them`,
+          repairs: ["align-host", "trim-silence", "intentional", "ignore"],
+        },
+        "audio-early": {
+          label: "Audio starts before video",
+          moment: "First guest response",
+          description: (name) => `${name}'s voice begins before their video appears`,
+          repairs: ["align-host", "add-gap", "intentional", "ignore"],
+        },
+        drift: {
+          label: "Track drifts over time",
+          moment: "Mid-episode exchange",
+          description: (name) => `${name}'s timing slowly slips away from the host`,
+          repairs: ["align-host", "replace", "intentional", "ignore"],
+        },
+        "ends-early": {
+          label: "Track ends early",
+          moment: "Final sign-off",
+          description: (name) => `${name}'s recording stops before the conversation ends`,
+          repairs: ["replace", "audio-only", "ignore"],
+          blocksExport: true,
+        },
+        duplicate: {
+          label: "Duplicate audio",
+          moment: "Back-and-forth stretch",
+          description: (name) => `${name}'s voice appears on two tracks at once`,
+          repairs: ["align-host", "replace", "ignore"],
+          blocksExport: true,
+        },
+        attribution: {
+          label: "Captions show wrong speaker",
+          moment: "Detected drift point",
+          description: (name) => `Captions name the wrong speaker during ${name}'s answer`,
+          repairs: ["align-host", "attribution", "intentional", "ignore"],
+        },
+        none: {
+          label: "In sync",
+          moment: "Current preview",
+          description: () => "Timing looks consistent for this track",
+          repairs: ["intentional"],
+        },
+      };
+
+      const repairs = {
+        "align-host": "Align to host",
+        "trim-silence": "Trim leading silence",
+        "add-gap": "Add visible gap",
+        replace: "Replace track",
+        "audio-only": "Mark as audio-only",
+        intentional: "Mark timing as intentional",
+        ignore: "Ignore for this episode",
+        attribution: "Open attribution review",
+      };
+
+      const sampleTracks = [
+        { id: "host", name: "Host — Dana Brooks", issue: "none", proposedRepair: "", resolution: "accepted" },
+        { id: "guest", name: "Guest 1 — Marcus Lee", issue: "video-late", proposedRepair: "align-host", resolution: null },
+      ];
+
+      let tracks = structuredClone(sampleTracks);
+
+      const tracksElement = document.querySelector("#tracks");
+      const statusElement = document.querySelector("#status");
+      const issuesElement = document.querySelector("#issues");
+
+      document.querySelector("#reset").addEventListener("click", () => {
+        tracks = structuredClone(sampleTracks);
+        render();
+      });
+
+      function repairChoices(issueKey) {
+        return (issues[issueKey].repairs || []).filter((key) => !["intentional", "ignore", "attribution"].includes(key));
+      }
+
+      function evaluate(list) {
+        const results = list.map((track) => {
+          const issue = issues[track.issue];
+          let state = "accepted";
+          let summary = null;
+
+          if (track.issue === "none") {
+            state = "accepted";
+          } else if (track.resolution === null) {
+            state = issue.blocksExport ? "blocked for export" : "flagged";
+            summary = {
+              title: issue.description(track.name),
+              action: issue.blocksExport
+                ? `Preview at ${issue.moment.toLowerCase()} and confirm a repair before export.`
+                : `Preview at ${issue.moment.toLowerCase()}, choose a repair, then confirm it.`,
+              tone: issue.blocksExport ? "blocker" : "review",
+            };
+          } else if (track.resolution === "ignored for episode") {
+            state = "ignored for episode";
+            summary = {
+              title: `${track.name}: ignored for this episode`,
+              action: "Sync suggestion hidden — export can continue if nothing else blocks.",
+              tone: "info",
+            };
+          } else if (track.resolution === "accepted") {
+            state = "accepted";
+            summary = {
+              title: `${track.name}: timing kept on purpose`,
+              action: issue.description(track.name),
+              tone: "info",
+            };
+          } else if (track.resolution === "needs attribution review") {
+            state = "needs attribution review";
+            summary = {
+              title: `${track.name}: captions need speaker review`,
+              action: "Open attribution review for the affected span before marking captions ready.",
+              tone: "review",
+            };
+          } else if (track.resolution === "repaired") {
+            state = "repaired";
+            summary = {
+              title: `${track.name}: repair confirmed`,
+              action: `${repairs[track.proposedRepair]} at ${issue.moment.toLowerCase()}.`,
+              tone: "info",
+            };
+          }
+
+          return { ...track, state, summary, issueMeta: issue };
+        });
+
+        const blocked = results.some((result) => result.state === "blocked for export");
+        const open = results.some((result) => ["flagged", "needs attribution review"].includes(result.state));
+        const overall = blocked ? "blocked" : open ? "review" : "ready";
+
+        return { overall, results };
+      }
+
+      function badgeClass(state) {
+        if (state === "flagged") return "flagged";
+        if (state === "repaired") return "repaired";
+        if (state === "accepted" || state === "ignored for episode") return state === "accepted" ? "accepted" : "ignored";
+        if (state === "needs attribution review") return "attribution";
+        if (state === "blocked for export") return "blocked";
+        return "accepted";
+      }
+
+      function render() {
+        const evaluation = evaluate(tracks);
+
+        tracksElement.replaceChildren(...tracks.map((track, index) => renderTrack(track, index, evaluation.results[index])));
+
+        statusElement.className = `status ${evaluation.overall}`;
+        statusElement.textContent = evaluation.overall === "ready"
+          ? "Ready to style"
+          : evaluation.overall === "blocked"
+            ? "Sync blocks export"
+            : "Sync needs review";
+
+        const summaries = evaluation.results.map((result) => result.summary).filter(Boolean);
+        issuesElement.replaceChildren(
+          ...(summaries.length
+            ? summaries.map(renderIssue)
+            : [Object.assign(document.createElement("p"), { textContent: "All speaker tracks are in sync." })]),
+        );
+      }
+
+      function renderTrack(track, index, result) {
+        const issue = issues[track.issue];
+        const article = document.createElement("article");
+        article.className = "track";
+
+        const head = document.createElement("div");
+        head.className = "head";
+        const title = document.createElement("strong");
+        title.textContent = track.name;
+        const badge = document.createElement("span");
+        badge.className = `badge ${badgeClass(result.state)}`;
+        badge.textContent = result.state;
+        head.append(title, badge);
+
+        const moment = document.createElement("div");
+        moment.className = "moment";
+        const momentTitle = document.createElement("strong");
+        momentTitle.textContent = `Preview: ${issue.moment}`;
+        const momentCopy = document.createElement("span");
+        momentCopy.textContent = issue.description(track.name);
+        moment.append(momentTitle, momentCopy);
+
+        article.append(head, moment);
+
+        if (track.issue !== "none") {
+          const issueLabel = document.createElement("label");
+          issueLabel.textContent = "Detected issue";
+          const issueSelect = document.createElement("select");
+          issueSelect.dataset.field = "issue";
+          for (const [value, item] of Object.entries(issues)) {
+            if (value === "none") continue;
+            const option = document.createElement("option");
+            option.value = value;
+            option.textContent = item.label;
+            option.selected = value === track.issue;
+            issueSelect.appendChild(option);
+          }
+          issueLabel.appendChild(issueSelect);
+          article.appendChild(issueLabel);
+
+          const repairLabel = document.createElement("label");
+          repairLabel.textContent = "Proposed repair";
+          const repairSelect = document.createElement("select");
+          repairSelect.dataset.field = "proposedRepair";
+          for (const value of repairChoices(track.issue)) {
+            const option = document.createElement("option");
+            option.value = value;
+            option.textContent = repairs[value];
+            option.selected = value === track.proposedRepair;
+            repairSelect.appendChild(option);
+          }
+          repairLabel.appendChild(repairSelect);
+          article.appendChild(repairLabel);
+
+          const actions = document.createElement("div");
+          actions.className = "actions";
+
+          const applyButton = document.createElement("button");
+          applyButton.type = "button";
+          applyButton.textContent = "Confirm repair";
+          applyButton.addEventListener("click", () => {
+            tracks[index].resolution = tracks[index].proposedRepair === "audio-only" ? "accepted" : "repaired";
+            render();
+          });
+
+          const intentionalButton = document.createElement("button");
+          intentionalButton.type = "button";
+          intentionalButton.className = "secondary";
+          intentionalButton.textContent = "Mark intentional";
+          intentionalButton.addEventListener("click", () => {
+            tracks[index].resolution = "accepted";
+            render();
+          });
+
+          const ignoreButton = document.createElement("button");
+          ignoreButton.type = "button";
+          ignoreButton.className = "secondary";
+          ignoreButton.textContent = "Ignore for episode";
+          ignoreButton.addEventListener("click", () => {
+            tracks[index].resolution = "ignored for episode";
+            render();
+          });
+
+          actions.append(applyButton, intentionalButton, ignoreButton);
+
+          if (issues[track.issue].repairs.includes("attribution")) {
+            const attributionButton = document.createElement("button");
+            attributionButton.type = "button";
+            attributionButton.className = "secondary";
+            attributionButton.textContent = "Open attribution review";
+            attributionButton.addEventListener("click", () => {
+              tracks[index].resolution = "needs attribution review";
+              render();
+            });
+            actions.appendChild(attributionButton);
+          }
+
+          article.appendChild(actions);
+        }
+
+        article.addEventListener("change", (event) => updateTrack(event, index));
+        return article;
+      }
+
+      function updateTrack(event, index) {
+        const field = event.target.dataset.field;
+        if (!field) return;
+
+        tracks[index][field] = event.target.value;
+
+        if (field === "issue") {
+          const choices = repairChoices(tracks[index].issue);
+          tracks[index].proposedRepair = choices[0] || "";
+          tracks[index].resolution = null;
+        }
+
+        if (field === "proposedRepair") {
+          tracks[index].resolution = null;
+        }
+
+        render();
+      }
+
+      function renderIssue(issue) {
+        const article = document.createElement("article");
+        article.className = `issue ${issue.tone === "blocker" ? "blocker" : issue.tone === "info" ? "info" : ""}`;
+        const strong = document.createElement("strong");
+        strong.textContent = issue.title;
+        const span = document.createElement("span");
+        span.textContent = issue.action;
+        article.append(strong, span);
+        return article;
+      }
+
+      render();
+    </script>
+  </body>
+</html>
