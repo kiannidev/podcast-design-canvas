@@ -424,6 +424,8 @@
               title: `Check the spelling of "${entry.term}"`,
               action: `We picked this up ${source.label.toLowerCase()}, so confirm "${entry.spelling}" before it spreads across the episode.`,
               tone: "review",
+              fixScreen: "audio-caption-quality-review.html",
+              fixLabel: "caption quality review",
             };
           } else {
             state = "suggested";
@@ -562,6 +564,13 @@
         const span = document.createElement("span");
         span.textContent = issue.action;
         article.append(strong, span);
+        if (issue.fixScreen && issue.fixLabel) {
+          const openLink = document.createElement("a");
+          openLink.className = "fix-link";
+          openLink.href = issue.fixScreen;
+          openLink.textContent = `Open ${issue.fixLabel} →`;
+          article.append(openLink);
+        }
         return article;
       }
 
