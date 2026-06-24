@@ -169,6 +169,12 @@ function renderPublishNav() {
   guided.textContent = "Guided episode flow";
   wrap.appendChild(guided);
 
+  const app = document.createElement("a");
+  app.href = "../preview/app.html";
+  setTopTargetWhenEmbedded(app);
+  app.textContent = "Preview app";
+  wrap.appendChild(app);
+
   if (previous) {
     const prevLink = document.createElement("a");
     setPublishScreenLink(prevLink, previous.file);
